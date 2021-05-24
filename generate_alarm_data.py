@@ -1,8 +1,8 @@
 #
 # Adapted alarm_table_generation.ipynb of Jonas Chromik (https://gitlab.hpi.de/jonas.chromik/mimic-alarms)
 #
-# To execute this script on server, chartevents_clean.parquet, mv_alarm_params.csv and
-# unique_icustays_in_chartevents_subset.parquet have to be in the subdirectory "data".
+# To execute this script on server, chartevents_clean.parquet and unique_icustays_in_chartevents_subset.parquet
+# have to be in the subdirectory "/data".
 #
 # Afterwards, you can run the following command to install all needed modules:
 #
@@ -21,7 +21,11 @@ from tqdm import tqdm
 
 PATH = './data/chartevents_clean.parquet'
 COLS = ['ROW_ID', 'ICUSTAY_ID', 'ITEMID', 'CHARTTIME', 'VALUENUM_CLEAN', 'VALUEUOM']
-PARAMS = pd.read_csv('./data/mv_alarm_params.csv', index_col=0, usecols=[0, 1, 2, 3])
+PARAMS = pd.DataFrame({
+    'LABEL':            ['HR',      'NBPs',     'SpO2'],
+    'VALUE':            [220045,    220179,     220277],
+    'THRESHOLD_HIGH':   [220046,    223751,     223769],
+    'THRESHOLD_LOW':    [220047,    223752,     223770]})
 
 chartevents_clean = pd.read_parquet(PATH, engine='pyarrow')
 chartevents_clean.CHARTTIME = pd.to_datetime(chartevents_clean.CHARTTIME)
@@ -38,8 +42,8 @@ def violations_for(icustay_id):
 
 def _violations(stayevents, param):
     value_events = stayevents[stayevents.ITEMID == PARAMS.VALUE[param]]
-    high_events = stayevents[stayevents.ITEMID == PARAMS.HIGH[param]]
-    low_events = stayevents[stayevents.ITEMID == PARAMS.LOW[param]]
+    high_events = stayevents[stayevents.ITEMID == PARAMS.THRESHOLD_HIGH[param]]
+    low_events = stayevents[stayevents.ITEMID == PARAMS.THRESHOLD_LOW[param]]
 
     violations = pd.DataFrame([])
 
