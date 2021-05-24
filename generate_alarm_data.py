@@ -79,7 +79,7 @@ def _alarms(stayevents, param):
 
 
 if __name__ == "__main__":
-    # Add optional script parameter "--chunks"
+    # Add custom help message and optional script parameter "--chunks"
     parser = ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
     parser.add_argument("--chunks", action="store_true", help="execute with chunked version of cleaned chartevents")
     args = parser.parse_args()
