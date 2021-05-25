@@ -105,6 +105,7 @@ if __name__ == "__main__":
     # Read and prepare cleaned chart events
     chartevents_clean = pd.read_parquet(PATH, engine='pyarrow')
     chartevents_clean.CHARTTIME = pd.to_datetime(chartevents_clean.CHARTTIME)
+    chartevents_clean = chartevents_clean.sort_values('CHARTTIME')
     chartevents_clean = chartevents_clean[chartevents_clean['VALUENUM_CLEAN'].notna()]
 
     # Read unique ICU stays
@@ -114,10 +115,6 @@ if __name__ == "__main__":
     alarms = pd.DataFrame([])
     with Pool(cpu_count()) as p:
         alarms = pd.concat(tqdm(p.imap(alarms_for, icustays.ICUSTAY_ID), total=len(icustays), smoothing=0))
-
-    # Convert row and item IDs to integers
-    for col in ['ROW_ID', 'ITEMID', 'THRESHOLD_ROW_ID', 'THRESHOLD_ITEMID']:
-        alarms[col] = alarms[col].astype(int)
 
     # Write CSV
     alarms.to_csv(FILENAME, index=False)
