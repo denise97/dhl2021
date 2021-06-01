@@ -21,7 +21,7 @@ The folder structure is as follows:
   - This folder may be further structured by subfolders. For example, a dedicated subfolder for sample rate analysis may be created if there are too many individual scripts for sampling rate analysis of ICU stays, of chunks, etc.
 - [**`mimic_data_preprocessing`**](./mimic_data_preprocessing)
   - Scripts for preparing MIMIC data for analysis and prediction, e.g. cleaning, chunking and resampling CHARTEVENT data.
-  - Once the order of pre-processing steps is established (e.g., Cleaning → Chunking → Resampling), we may add prefixes to the file names to reflect this sequences (e.g., `01_cleaning_...`, `02_chunking_...`, `03_resampling_...`). Currently only a proposal, not yet implemented.
+  - Once the order of pre-processing steps is established (e.g., Cleaning → Chunking → Resampling), we may add prefixes to the file names to reflect the order (e.g., `01_cleaning_...`, `02_chunking_...`, `03_resampling_...`). Currently only a proposal, not yet implemented.
 - [**`mimic_prediction_arima`**](./mimic_prediction_arima)
   - Scripts for time series forecasting with *Autoregressive Integrated Moving Average models* (ARIMA) in all variants, i.e. also ARIMAX, for instance.
 - [**`mimic_prediction_rnn`**](./mimic_prediction_rnn)
@@ -29,4 +29,13 @@ The folder structure is as follows:
 - [**`templates_for_plots`**](./templates_for_plots)
   - General templates for creating charts such as box plots, histograms and time series plots.
 
-##
+## Glossary of Terms
+
+- **Vital Parameter Value Series** (short *value series*) refers to a series of measurement points for a specific vital parameter, e.g. the heart rate in beats per minute over a period of time.
+- **Alarm Threshold Value** (short *threshold*) is a limit value the crossing of which triggers an alarm. There can be different **Threshold Types**, namely *high* and *low*. For example, if the set threshold value of type high is exceeded by the heart rate measured in the patient, an alarm is triggered indicating that the heart rate is too high. Similar to the vital parameters, the threshold values are available as series of data points, e.g. an **Alarm Threshold Value Series** (short *threshold series*) containing the alarm threshold value for a too high heart rate over a period of time.
+- **ICU Stay** is the stay of a patient in an intensive care unit. Note that a patient may stay in the ICU more than once over time, i.e. there are more ICU stays than patients.
+- **Chunk** refers to a section of an ICU stay measurement series. **Chunking** of an ICU stay measurement series into several shorter measurement series (chunks) aims at removing longer periods without measurement points. In the case of **Parameter-Specific Chunking**, this splitting of the measurement series is performed separately for each ICU stay/ parameter combination, whereas in the case of **Cross-Parameter Chunking**, the splitting is performed for all parameters of an ICU stay at the same points. In any case, there are at least as many chunks as ICU stays, usually more chunks than ICU stays. Cross-Parameter Chunking usually leads to more chunks than Parameter-Specific Chunking.
+- **Local Threshold Removal** ... *description to be added* 
+- **Local Threshold Swap** ... *description to be added* 
+- **Triggered Alarm** ... *description to be added* 
+-  ... *list to be extended*
