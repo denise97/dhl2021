@@ -1,0 +1,18 @@
+﻿Script Name,Script Location Path ,Input File(s),Output File(s),Comment
+create_chunks.ipynb,,"I)chartevents_clean.parquet
+II)unique_icustays_in_chartevents_subset.parquet",chartevents_clean_values_and_thresholds_with_chunkid_65.parquet,65 in Putput File refers to difference to next measurement after which is being chunked
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
