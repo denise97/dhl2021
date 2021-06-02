@@ -43,4 +43,6 @@ The folder structure is as follows:
 - **Local Threshold Removal** ... *description to be added* 
 - **Local Threshold Swap** ... *description to be added* 
 - **Triggered Alarm** ... *description to be added* 
+- **Sampling Rate** describes the average of vital parameter measurements obtained in one hour for a specific vital parameter of an ICU Stay or a Chunk.
+- **Timedelta to Previous Measurement**  forms the basis for deriving possible chunking rules. The timedelta always refers to the timestamp of the same ICU stay and the same vital parameter. The elapsed time between one measurement and the previous measurement is given in minutes.
 -  ... *list to be extended*
