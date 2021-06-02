@@ -1,0 +1,21 @@
+﻿Script Name,Script Location Path ,Input File(s),Output File(s),Comment
+create_chunks.ipynb,,"I)chartevents_clean.parquet
+II)unique_icustays_in_chartevents_subset.parquet","I)chartevents_clean_values_with_chunkid_65.parquet
+II)chartevents_clean_values_and_thresholds_with_chunkid_65.parquet",65 in Putput File refers to difference to next measurement after which is being chunked
+create_sampling_rates.ipynb,,"I)chartevents_subset.parquet
+II)unique_icustays_in_chartevents_subset.parquet",sampling_rates_for_icustay_itemid.parquet,
+create_sampling_rates_for_chunks.ipynb,,chartevent_subset_values_with_chunkid_65.parquet,sampling_rates_for_chunkid.parquet,Same file as create_sampling_rates.ipynb just adapted to chunks
+analyze_sampling_rate.ipynb,,sampling_rates_for_icustay_itemid.parquet,none,visualize boxplot and descriptive statistics
+analyze_sampling_rate_for_chunks.ipynb,,sampling_rates_for_chunkid.parquet,none,Same file as analyze_sampling_rate just adapted to chunks
+analyze_chunks_by_icustay.ipynb,,chartevent_subset_values_with_chunkid_65.parquet,none,
+add_dif_between_measurements.ipynb,,"I)chartevents_subset.parquet
+II)unique_icustays_in_chartevents_subset.parquet",chunk_analysis_data.parquet,File that is used to derive possible chunking rules
+derive_chunking_rules.ipynb,,chunk_analysis_data.parquet,,proposes two chunking options (after 60 mins and after 120 mins)
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
