@@ -23,6 +23,7 @@ resample_cleaned_chartevents_chunks.ipynb,mimic_data_preprocessing/resample_clea
 02) chartevents_clean_values_and_thresholds_with_chunkid_65_resampled_mean.parquet","Resample previously cleaned and chunked CHARTEVENTS data as they originally have an inconsistent sampling rate, but forecasting requires a consistent sampling rate. Output filename suffix refers to the method used in downsampling (median or mean)."
 chartevents_analysis.ipynb,mimic_chartevents_analysis/chartevents_analysis.ipynb,"01) chartevents_subset.parquet
 02) unique_icustays_in_chartevents_subset.parquet",,Descriptive statistics for chartevents_subset.parquet (general and for three relevant parameters)
+compute_unique_icustays_in_chartevents_subset.ipynb,mimic_chartevents_analysis/compute_unique_icustays_in_chartevents_subset.ipynb,chartevents_subset.parquet,unique_icustays_in_chartevents_subset.parquet,Compute unqiue ICU stays in chartevents_subset and save it for quick reuse in other scripts without having to run the calculation again.
 create_sampling_rates.ipynb,mimic_chartevents_analysis/create_sampling_rates.ipynb,"01) chartevents_subset.parquet
 02) unique_icustays_in_chartevents_subset.parquet",sampling_rates_for_icustay_itemid.parquet,
 create_sampling_rates_for_chunks.ipynb,mimic_chartevents_analysis/create_sampling_rates_for_chunks.ipynb,chartevent_subset_values_with_chunkid_65.parquet,sampling_rates_for_chunkid.parquet,Same file as create_sampling_rates.ipynb just adapted to chunks
