@@ -19,6 +19,8 @@ add_dif_between_measurements.ipynb,mimic_data_preprocessing/add_dif_between_meas
 create_chunks.ipynb,mimic_data_preprocessing/create_chunks.ipynb,"01) chartevents_clean.parquet
 02) unique_icustays_in_chartevents_subset.parquet","01) chartevents_clean_values_with_chunkid_65.parquet
 02) chartevents_clean_values_and_thresholds_with_chunkid_65.parquet",65 in Putput File refers to difference to next measurement after which is being chunked
+resample_cleaned_chartevents_chunks.ipynb,mimic_data_preprocessing/resample_cleaned_chartevents_chunks.ipynb,chartevents_clean_values_and_thresholds_with_chunkid_65.parquet,"01) chartevents_clean_values_and_thresholds_with_chunkid_65_resampled_median.parquet
+02) chartevents_clean_values_and_thresholds_with_chunkid_65_resampled_mean.parquet","Resample previously cleaned and chunked CHARTEVENTS data as they originally have an inconsistent sampling rate, but forecasting requires a consistent sampling rate. Output filename suffix refers to the method used in downsampling (median or mean)."
 chartevents_analysis.ipynb,mimic_chartevents_analysis/chartevents_analysis.ipynb,"01) chartevents_subset.parquet
 02) unique_icustays_in_chartevents_subset.parquet",,Descriptive statistics for chartevents_subset.parquet (general and for three relevant parameters)
 create_sampling_rates.ipynb,mimic_chartevents_analysis/create_sampling_rates.ipynb,"01) chartevents_subset.parquet
@@ -28,6 +30,9 @@ analyze_sampling_rates.ipynb,mimic_chartevents_analysis/analyze_sampling_rates.i
 analyze_sampling_rates_for_chunks.ipynb,mimic_chartevents_analysis/analyze_sampling_rates_for_chunks.ipynb,sampling_rates_for_chunkid.parquet,none,Same file as analyze_sampling_rate just adapted to chunks
 analyze_chunks_by_icustay.ipynb,mimic_chartevents_analysis/analyze_chunks_by_icustay.ipynb,chartevent_subset_values_with_chunkid_65.parquet,none,
 derive_chunking_rules.ipynb,mimic_chartevents_analysis/derive_chunking_rules.ipynb,chunk_analysis_data.parquet,,proposes two chunking options (after 60 mins and after 120 mins)
+plots_for_resampled_cleaned_chartevents_chunks.ipynb,mimic_chartevents_analysis/plots_for_resampled_cleaned_chartevents_chunks.ipynb,"01) chartevents_clean_values_and_thresholds_with_chunkid_65.parquet
+02) chartevents_clean_values_and_thresholds_with_chunkid_65_resampled_median.parquet
+03) chartevents_clean_values_and_thresholds_with_chunkid_65_resampled_mean.parquet",none,"Create time series plots, which allow to compare vital parameter values series before and after resampling"
 generate_alarm_data.py,mimic_alarm_data_generation/generate_alarm_data.py,"01) chartevents_clean.parquet
 02) chartevents_clean_values_and_thresholds_with_chunkid_65.parquet
 03) unique_icustays_in_chartevents_subset.parquet","01) alarm_data.csv,
