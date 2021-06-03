@@ -4,7 +4,7 @@ For more information, see [project description](https://hpi.de/arnrich/projects/
 
 ## Folder Structure in Git Repository
 
-In general, this Git repository contains only scripts (usually Jupyter notebooks or Python scripts), not data sets. Data sets are located on the Delab server in the `MPSS2021BA1` folder (usually CSV or Parquet files).
+In general, this Git repository contains only scripts (usually Jupyter notebooks or Python scripts), not data sets. Data sets are located on the Delab server in the `MPSS2021BA1` folder (usually CSV or Parquet files) and documented in Wiki entry [File Overview](https://github.com/denise97/dhl2021/wiki/File-Overview).
 
 **A tabular overview of all individual scripts is provided in the [Script Register](./Script_Register.csv)**, including the script name and location as well as the respective input and output file(s).
 
