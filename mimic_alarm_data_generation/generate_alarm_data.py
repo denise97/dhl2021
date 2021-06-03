@@ -27,22 +27,23 @@ def alarms_for(icustay_id):
 
 
 def _alarms(stayevents, param):
-    value_events = stayevents[stayevents.ITEMID == PARAMS.VALUE[param]]
-    high_events = stayevents[stayevents.ITEMID == PARAMS.THRESHOLD_HIGH[param]]
-    low_events = stayevents[stayevents.ITEMID == PARAMS.THRESHOLD_LOW[param]]
+    value_series = stayevents[stayevents.ITEMID == PARAMS.VALUE[param]]
+    high_thresholds = stayevents[stayevents.ITEMID == PARAMS.THRESHOLD_HIGH[param]]
+    low_thresholds = stayevents[stayevents.ITEMID == PARAMS.THRESHOLD_LOW[param]]
 
     alarms = pd.DataFrame([])
 
-    for old, new in zip_longest(low_events.itertuples(), low_events[1:].itertuples(), fillvalue=None):
+    # Check if there is a value that is lower than previously defined threshold of type low
+    for old, new in zip_longest(low_thresholds.itertuples(), low_thresholds[1:].itertuples(), fillvalue=None):
         if new is not None:
-            local_alarms = value_events[
-                (value_events.CHARTTIME >= old.CHARTTIME) &
-                (value_events.CHARTTIME < new.CHARTTIME) &
-                (value_events.VALUENUM < old.VALUENUM)]
+            local_alarms = value_series[
+                (value_series.CHARTTIME >= old.CHARTTIME) &
+                (value_series.CHARTTIME < new.CHARTTIME) &
+                (value_series.VALUENUM < old.VALUENUM)]
         else:
-            local_alarms = value_events[
-                (value_events.CHARTTIME >= old.CHARTTIME) &
-                (value_events.VALUENUM < old.VALUENUM)]
+            local_alarms = value_series[
+                (value_series.CHARTTIME >= old.CHARTTIME) &
+                (value_series.VALUENUM < old.VALUENUM)]
 
         local_alarms = local_alarms[COLS]
 
@@ -54,16 +55,17 @@ def _alarms(stayevents, param):
 
         alarms = alarms.append(local_alarms)
 
-    for old, new in zip_longest(high_events.itertuples(), high_events[1:].itertuples(), fillvalue=None):
+    # Check if there is a value that is higher than previously defined threshold of type high
+    for old, new in zip_longest(high_thresholds.itertuples(), high_thresholds[1:].itertuples(), fillvalue=None):
         if new is not None:
-            local_alarms = value_events[
-                (value_events.CHARTTIME >= old.CHARTTIME) &
-                (value_events.CHARTTIME < new.CHARTTIME) &
-                (value_events.VALUENUM > old.VALUENUM)]
+            local_alarms = value_series[
+                (value_series.CHARTTIME >= old.CHARTTIME) &
+                (value_series.CHARTTIME < new.CHARTTIME) &
+                (value_series.VALUENUM > old.VALUENUM)]
         else:
-            local_alarms = value_events[
-                (value_events.CHARTTIME >= old.CHARTTIME) &
-                (value_events.VALUENUM > old.VALUENUM)]
+            local_alarms = value_series[
+                (value_series.CHARTTIME >= old.CHARTTIME) &
+                (value_series.VALUENUM > old.VALUENUM)]
 
         local_alarms = local_alarms[COLS]
 
