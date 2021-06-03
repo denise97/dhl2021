@@ -3,7 +3,7 @@
     (https://gitlab.hpi.de/jonas.chromik/mimic-alarms).
 
     To execute this script on server, chartevents_clean.parquet respectively
-    chartevents_clean_values_and_thresholds_with_chunkid_65 and unique_icustays_in_chartevents_subset.parquet
+    chartevents_clean_values_and_thresholds_with_chunkid_65.parquet and unique_icustays_in_chartevents_subset.parquet
     have to be in the subdirectory "/data".
 
     Afterwards, you can run the following command to install all needed modules:

@@ -1,21 +1,42 @@
-﻿Script Name,Script Location Path ,Input File(s),Output File(s),Comment
-create_chunks.ipynb,,"I)chartevents_clean.parquet
+Script Name,Script Location Path ,Input File(s),Output File(s),Comment
+add_dif_between_measurements.ipynb,mimic_data_preprocessing/add_dif_between_measurements.ipynb,"I)chartevents_subset.parquet
+II)unique_icustays_in_chartevents_subset.parquet",chunk_analysis_data.parquet,File that is used to derive possible chunking rules
+create_chunks.ipynb,mimic_data_preprocessing/create_chunks.ipynb,"I)chartevents_clean.parquet
 II)unique_icustays_in_chartevents_subset.parquet","I)chartevents_clean_values_with_chunkid_65.parquet
 II)chartevents_clean_values_and_thresholds_with_chunkid_65.parquet",65 in Putput File refers to difference to next measurement after which is being chunked
-create_sampling_rates.ipynb,,"I)chartevents_subset.parquet
-II)unique_icustays_in_chartevents_subset.parquet",sampling_rates_for_icustay_itemid.parquet,
-create_sampling_rates_for_chunks.ipynb,,chartevent_subset_values_with_chunkid_65.parquet,sampling_rates_for_chunkid.parquet,Same file as create_sampling_rates.ipynb just adapted to chunks
-analyze_sampling_rate.ipynb,,sampling_rates_for_icustay_itemid.parquet,none,visualize boxplot and descriptive statistics
-analyze_sampling_rate_for_chunks.ipynb,,sampling_rates_for_chunkid.parquet,none,Same file as analyze_sampling_rate just adapted to chunks
-analyze_chunks_by_icustay.ipynb,,chartevent_subset_values_with_chunkid_65.parquet,none,
-add_dif_between_measurements.ipynb,,"I)chartevents_subset.parquet
-II)unique_icustays_in_chartevents_subset.parquet",chunk_analysis_data.parquet,File that is used to derive possible chunking rules
-derive_chunking_rules.ipynb,,chunk_analysis_data.parquet,,proposes two chunking options (after 60 mins and after 120 mins)
-,,,,
-,,,,
-,,,,
-,,,,
-,,,,
-,,,,
-,,,,
+chartevents_analysis.ipynb,mimic_chartevents_analysis/chartevents_analysis.ipynb,"I)chartevents_subset.parquet
+II)unique_icustays_in_chartevents_subset.parquet","",Descriptive statistics for chartevents_subset.parquet (general and for three relevant parameters)
+create_sampling_rates.ipynb,mimic_chartevents_analysis/create_sampling_rates.ipynb,"I)chartevents_subset.parquet
+II)unique_icustays_in_chartevents_subset.parquet",sampling_rates_for_icustay_itemid.parquet,""
+create_sampling_rates_for_chunks.ipynb,mimic_chartevents_analysis/create_sampling_rates_for_chunks.ipynb,chartevent_subset_values_with_chunkid_65.parquet,sampling_rates_for_chunkid.parquet,Same file as create_sampling_rates.ipynb just adapted to chunks
+analyze_sampling_rates.ipynb,mimic_chartevents_analysis/analyze_sampling_rates.ipynb,sampling_rates_for_icustay_itemid.parquet,none,visualize boxplot and descriptive statistics
+analyze_sampling_rates_for_chunks.ipynb,mimic_chartevents_analysis/analyze_sampling_rates_for_chunks.ipynb,sampling_rates_for_chunkid.parquet,none,Same file as analyze_sampling_rate just adapted to chunks
+analyze_chunks_by_icustay.ipynb,mimic_chartevents_analysis/analyze_chunks_by_icustay.ipynb,chartevent_subset_values_with_chunkid_65.parquet,none,""
+derive_chunking_rules.ipynb,mimic_chartevents_analysis/derive_chunking_rules.ipynb,chunk_analysis_data.parquet,"",proposes two chunking options (after 60 mins and after 120 mins)
+generate_alarm_data.py,mimic_alarm_data_generation/generate_alarm_data.py,"I)chartevents_clean.parquet
+II)chartevents_clean_values_and_thresholds_with_chunkid_65.parquet
+III)unique_icustays_in_chartevents_subset.parquet","I)alarm_data.csv,
+II)alarm_data_with_chunks_65.csv",Execute with chunked version of cleaned chartevents via parameter --chunks
+verify_alarm_data.ipynb,mimic_alarm_data_generation/verify_alarm_data.ipynb,"I)alarm_violations.csv
+II)alarm_data.csv
+III)alarm_data_with_chunks_65.csv
+IV)unique_icustays_in_chartevents_subset.parquet
+V)chartevents_clean.parquet","",Only internal verification
+prescriptions_analysis.ipynb,mimic_medication_analysis/prescriptions_analysis.ipynb,"I)PRESCRIPTIONS.csv
+II)unique_icustays_in_chartevents_subset.parquet
+III)prescriptions_based_medications.parquet
+IV)chartevents_subset.parquet",prescriptions_based_medications.parquet,Analyze PRESCRIPTIONS.csv for introduction of medication flag
+inputevents_mv_analysis.ipynb,mimic_medication_analysis/inputevents_mv_analysis.ipynb,"I)D_ITEMS.csv
+II)INPUTEVENTS_MV.csv
+III)unique_icustays_in_chartevents_subset.parquet
+IV)CHARTEVENTS.csv
+V)inputevents_based_medications.parquet
+VI)chartevents_subset.parquet","I)inputevents_based_medications.parquet
+II)chartevents_medication_subset.parquet","Analyze INPUTEVENTS_MV.csv for introduction of medication flag: Based on this analysis and its produced output, we added flag indicating medication within time period of 1 hour before and after an alarm"
+alarm_violations_analysis.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis.ipynb,alarm_violations.csv,"",""
+alarm_violations_analysis_HR.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_HR.ipynb,alarm_violations.csv,"",""
+alarm_violations_analysis_MV.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_MV.ipynb,alarm_violations.csv,"",Did not investigated thresholds as we decided to not include this parameter into further analyses
+alarm_violations_analysis_NBPs.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_NBPs.ipynb,alarm_violations.csv,"",""
+alarm_violations_analysis_O2SAT.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_O2SAT.ipynb,alarm_violations.csv,"",""
+alarm_violations_analysis_RR.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_RR.ipynb,alarm_violations.csv,"",""
 ,,,,
