@@ -53,6 +53,8 @@ inputevents_mv_analysis.ipynb,mimic_medication_analysis/inputevents_mv_analysis.
 04) CHARTEVENTS.csv
 05) inputevents_based_medications.parquet
 06) chartevents_subset.parquet",inputevents_based_medications.parquet,"Analyze INPUTEVENTS_MV.csv for introduction of medication flag: Based on this analysis and its produced output, we added flag indicating medication within time period of 1 hour before and after an alarm"
+integrate_med_flag.ipynb,mimic_medication_analysis/integrate_med_flag.ipynb,"01) alarm_data.csv
+02) inputevents_based_medications.parquet",alarm_data_with_med_{time window}min.parquet,Time window of currently 120 minutes should be adjusted if we want to use this flag later
 alarm_violations_analysis.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis.ipynb,alarm_violations.csv,,
 alarm_violations_analysis_HR.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_HR.ipynb,alarm_violations.csv,,
 alarm_violations_analysis_MV.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_MV.ipynb,alarm_violations.csv,,Did not investigated thresholds as we decided to not include this parameter into further analyses
