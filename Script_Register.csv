@@ -52,8 +52,7 @@ inputevents_mv_analysis.ipynb,mimic_medication_analysis/inputevents_mv_analysis.
 03) unique_icustays_in_chartevents_subset.parquet
 04) CHARTEVENTS.csv
 05) inputevents_based_medications.parquet
-06) chartevents_subset.parquet","01) inputevents_based_medications.parquet
-02) chartevents_medication_subset.parquet","Analyze INPUTEVENTS_MV.csv for introduction of medication flag: Based on this analysis and its produced output, we added flag indicating medication within time period of 1 hour before and after an alarm"
+06) chartevents_subset.parquet",inputevents_based_medications.parquet,"Analyze INPUTEVENTS_MV.csv for introduction of medication flag: Based on this analysis and its produced output, we added flag indicating medication within time period of 1 hour before and after an alarm"
 alarm_violations_analysis.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis.ipynb,alarm_violations.csv,,
 alarm_violations_analysis_HR.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_HR.ipynb,alarm_violations.csv,,
 alarm_violations_analysis_MV.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_MV.ipynb,alarm_violations.csv,,Did not investigated thresholds as we decided to not include this parameter into further analyses
