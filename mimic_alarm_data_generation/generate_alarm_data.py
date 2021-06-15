@@ -2,7 +2,7 @@
     This is an adapted version of alarm_table_generation.ipynb by Jonas Chromik
     (https://gitlab.hpi.de/jonas.chromik/mimic-alarms).
 
-    To execute this script on server, `chartevents_clean.parquet` respectively
+    To execute this script on server in `MPSS2021BA1`, the files `chartevents_clean.parquet` respectively
     `chartevents_clean_values_and_thresholds_with_chunkid_65.parquet` and `unique_icustays_in_chartevents_subset.parquet`
     have to be in the subdirectory `/data`.
 
@@ -39,18 +39,18 @@ def _alarms(stayevents, param):
             local_alarms = value_series[
                 (value_series.CHARTTIME >= old.CHARTTIME) &
                 (value_series.CHARTTIME < new.CHARTTIME) &
-                (value_series.VALUENUM < old.VALUENUM)]
+                (value_series.VALUENUM_CLEAN < old.VALUENUM_CLEAN)]
         else:
             local_alarms = value_series[
                 (value_series.CHARTTIME >= old.CHARTTIME) &
-                (value_series.VALUENUM < old.VALUENUM)]
+                (value_series.VALUENUM_CLEAN < old.VALUENUM_CLEAN)]
 
         local_alarms = local_alarms[COLS]
 
         local_alarms.insert(6, 'THRESHOLD_ROW_ID', old.ROW_ID)
         local_alarms.insert(7, 'THRESHOLD_ITEMID', old.ITEMID)
         local_alarms.insert(8, 'THRESHOLD_CHARTTIME', old.CHARTTIME)
-        local_alarms.insert(9, 'THRESHOLD_VALUE', old.VALUENUM)
+        local_alarms.insert(9, 'THRESHOLD_VALUE', old.VALUENUM_CLEAN)
         local_alarms.insert(10, 'THRESHOLD_TYPE', 'LOW')
 
         alarms = alarms.append(local_alarms)
@@ -61,18 +61,18 @@ def _alarms(stayevents, param):
             local_alarms = value_series[
                 (value_series.CHARTTIME >= old.CHARTTIME) &
                 (value_series.CHARTTIME < new.CHARTTIME) &
-                (value_series.VALUENUM > old.VALUENUM)]
+                (value_series.VALUENUM_CLEAN > old.VALUENUM_CLEAN)]
         else:
             local_alarms = value_series[
                 (value_series.CHARTTIME >= old.CHARTTIME) &
-                (value_series.VALUENUM > old.VALUENUM)]
+                (value_series.VALUENUM_CLEAN > old.VALUENUM_CLEAN)]
 
         local_alarms = local_alarms[COLS]
 
         local_alarms.insert(6, 'THRESHOLD_ROW_ID', old.ROW_ID)
         local_alarms.insert(7, 'THRESHOLD_ITEMID', old.ITEMID)
         local_alarms.insert(8, 'THRESHOLD_CHARTTIME', old.CHARTTIME)
-        local_alarms.insert(9, 'THRESHOLD_VALUE', old.VALUENUM)
+        local_alarms.insert(9, 'THRESHOLD_VALUE', old.VALUENUM_CLEAN)
         local_alarms.insert(10, 'THRESHOLD_TYPE', 'HIGH')
 
         alarms = alarms.append(local_alarms)
@@ -89,10 +89,10 @@ if __name__ == "__main__":
     # Define input path and filename of resulting CSV, depending on script parameter "--chunks"
     if args.chunks:
         PATH = './data/chartevents_clean_values_and_thresholds_with_chunkid_65.parquet'
-        FILENAME = './data/alarm_data_with_chunks_65.csv'
+        FILENAME = './data/alarms/alarm_data_with_chunks_65.csv'
     else:
         PATH = './data/chartevents_clean.parquet'
-        FILENAME = './data/alarm_data.csv'
+        FILENAME = './data/alarms/alarm_data.csv'
 
     # Define columns to include into alarm data generation
     COLS = ['ROW_ID', 'ICUSTAY_ID', 'ITEMID', 'CHARTTIME', 'VALUENUM_CLEAN', 'VALUEUOM']
