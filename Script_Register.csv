@@ -61,4 +61,4 @@ alarm_violations_analysis_MV.ipynb,mimic_alarm_violations_analysis/alarm_violati
 alarm_violations_analysis_NBPs.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_NBPs.ipynb,alarm_violations.csv,,
 alarm_violations_analysis_O2SAT.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_O2SAT.ipynb,alarm_violations.csv,,
 alarm_violations_analysis_RR.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_RR.ipynb,alarm_violations.csv,,
-prediction_single_ICU_stay.iypnb,mimic_prediction_darts/prediction_single_ICU_stay.iypnb,chartevents_clean.parquet,,Simple approach using LSTM model and only one ICU stay (to test Darts for the first time)
+prediction_single_ICU_stay.iypnb,mimic_prediction_rnn/prediction_single_ICU_stay.iypnb,chartevents_clean.parquet,,Simple approach using LSTM model and only one ICU stay (to test Darts for the first time)

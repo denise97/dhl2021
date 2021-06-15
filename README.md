@@ -28,10 +28,7 @@ The folder structure is as follows:
   - Once the order of pre-processing steps is established (e.g., Cleaning → Chunking → Resampling), we may add prefixes to the file names to reflect the order (e.g., `01_cleaning_...`, `02_chunking_...`, `03_resampling_...`). Currently only a proposal, not yet implemented.
 - [**`mimic_prediction_arima`**](./mimic_prediction_arima)
   - Scripts for time series forecasting with *Autoregressive Integrated Moving Average models* (ARIMA) in all variants, i.e. also ARIMAX, for instance.
-- [**`mimic_prediction_cnn`**](./mimic_prediction_cnn)
-  - Scripts for time series forecasting with *Convolutional Neural Networks* (CNNs).
-  - Folder does not exist yet, because there are no corresponding scripts yet.
-- [**`mimic_prediction_darts`**](./mimic_prediction_darts)
+- [**`mimic_prediction_rnn`**](./mimic_prediction_rnn)
   - Scripts for time series forecasting with *RRNModel* by [Darts](https://github.com/unit8co/darts).
 - [**`paper_visualizations`**](./paper_visualizations)
   - Scripts for the creation of various plots for Jonas' paper.
