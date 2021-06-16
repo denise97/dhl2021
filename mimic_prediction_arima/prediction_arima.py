@@ -1,6 +1,6 @@
-############################
-# ARIMAX - Fix TRAIN Size 12
-############################
+###########################
+# ARIMA - Fix TRAIN Size 12
+###########################
 
 import pandas as pd
 import pmdarima as pm
@@ -55,41 +55,24 @@ for j, chunk in enumerate(dict_of_chunk_series_with_test_and_train_and_forecast)
         accurracy_matrix_df_for_chunk_iteration = pd.DataFrame(columns=["TP","FN","FP","TN"])
 
         ########################
-        # ARIMAX for High Alarms
+        # ARIMA
         ########################
 
-        current_train_list_high = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TRAIN_LIST_MAX"] 
-        current_test_list_high = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TEST_LIST_MAX"]
-        current_train_list_exog_high = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TRAIN_LIST_MEDIAN"].values.reshape(-1, 1)
-        current_test_list_exog_high = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TEST_LIST_MEDIAN"].values.reshape(-1, 1)
-        arimax_high = pm.auto_arima(current_train_list_high, X=current_train_list_exog_high, suppress_warnings=True, error_action='ignore')
-        forecast_arimax_high = pd.Series(arimax_high.predict(TEST, X=current_test_list_exog_high), index=[*range(i+TRAIN,i+TRAIN+TEST,1)], name="forecast_list_arimax_high")
-        dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["FORECAST_LIST_ARIMAX_HIGH"] = forecast_arimax_high
+        current_train_list = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TRAIN_LIST_MEDIAN"] 
+        current_test_list = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TEST_LIST_MEDIAN"]
+        arima = pm.auto_arima(current_train_list, suppress_warnings=True, error_action='ignore')
+        forecast_arima = pd.Series(arima.predict(TEST), index=[*range(i+TRAIN,i+TRAIN+TEST,1)], name="forecast_list_arima")
+        dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["FORECAST_LIST_ARIMA"] = forecast_arima
         
         runningtime = round(((time.time() - starttime) / 60), 5)
-        print('Chunk '+str(j)+' iteration '+str(i)+': Completed ARIMAX - High Alarms. Running time '+str(runningtime)+' min.')
-
-        ########################
-        # ARIMAX for Low Alarms
-        ########################
-        
-        current_train_list_low = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TRAIN_LIST_MIN"] 
-        current_test_list_low = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TEST_LIST_MIN"] 
-        current_train_list_exog_low = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TRAIN_LIST_MEDIAN"].values.reshape(-1, 1)
-        current_test_list_exog_low = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TEST_LIST_MEDIAN"].values.reshape(-1, 1)
-        arimax_low = pm.auto_arima(current_train_list_low, X=current_train_list_exog_low, suppress_warnings=True, error_action='ignore')
-        forecast_arimax_low = pd.Series(arimax_low.predict(TEST, X=current_test_list_exog_low), index=[*range(i+TRAIN,i+TRAIN+TEST,1)], name="forecast_list_arimax_low")
-        dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["FORECAST_LIST_ARIMAX_LOW"] = forecast_arimax_low
-        
-        runningtime = round(((time.time() - starttime) / 60), 5)
-        print('Chunk '+str(j)+' iteration '+str(i)+': Completed ARIMAX - Low Alarms. Running time '+str(runningtime)+' min.')
+        print('Chunk '+str(j)+' iteration '+str(i)+': Completed ARIMA. Running time '+str(runningtime)+' min.')
 
         # extract threshold series 
         threshold_high_for_test_list = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["THRESHOLD_HIGH_FOR_TEST_LIST"]
         threshold_low_for_test_list = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["THRESHOLD_LOW_FOR_TEST_LIST"]
         
         # write to dict_of_chunk_series_with_forecast_df dataframe
-        all_dict_lists_as_df = pd.concat([current_test_list_high,forecast_arimax_high,threshold_high_for_test_list,current_test_list_low,forecast_arimax_low,threshold_low_for_test_list],axis=1)
+        all_dict_lists_as_df = pd.concat([current_test_list,threshold_high_for_test_list,threshold_low_for_test_list,forecast_arima],axis=1)
         dict_of_chunk_series_with_forecast_df[chunk][chunk_iteration] = all_dict_lists_as_df
 
         ##############################################
@@ -99,13 +82,13 @@ for j, chunk in enumerate(dict_of_chunk_series_with_test_and_train_and_forecast)
         df_for_chunk_iteration = dict_of_chunk_series_with_forecast_df[chunk][chunk_iteration]
         
         # True alarms
-        df_for_chunk_iteration['high_alarm_triggered'] = np.where(df_for_chunk_iteration['test_list_max'] > df_for_chunk_iteration['threshold_high_for_test_list'] ,1,0)
-        df_for_chunk_iteration['low_alarm_triggered'] = np.where(df_for_chunk_iteration['test_list_min'] < df_for_chunk_iteration['threshold_low_for_test_list'] ,1,0)
+        df_for_chunk_iteration['high_alarm_triggered'] = np.where(df_for_chunk_iteration['test_list_median'] > df_for_chunk_iteration['threshold_high_for_test_list'] ,1,0)
+        df_for_chunk_iteration['low_alarm_triggered'] = np.where(df_for_chunk_iteration['test_list_median'] < df_for_chunk_iteration['threshold_low_for_test_list'] ,1,0)
                 
-        # ARIMAX forecast
-        df_for_chunk_iteration['high_alarm_triggered_forecast_arimax'] = np.where(df_for_chunk_iteration['forecast_list_arimax_high'] > df_for_chunk_iteration['threshold_high_for_test_list'],1,0)
-        df_for_chunk_iteration['low_alarm_triggered_forecast_arimax'] = np.where(df_for_chunk_iteration['forecast_list_arimax_low'] < df_for_chunk_iteration['threshold_low_for_test_list'],1,0)
-        #write to dict_of_chunk_series_with_forecast_and_alarm_df dataframe
+        # ARIMA forecast
+        df_for_chunk_iteration['high_alarm_triggered_forecast_arima'] = np.where(df_for_chunk_iteration['forecast_list_arima'] > df_for_chunk_iteration['threshold_high_for_test_list'],1,0)
+        df_for_chunk_iteration['low_alarm_triggered_forecast_arima'] = np.where(df_for_chunk_iteration['forecast_list_arima'] < df_for_chunk_iteration['threshold_low_for_test_list'],1,0)
+        # write to dict_of_chunk_series_with_forecast_and_alarm_df dataframe
         dict_of_chunk_series_with_forecast_df[chunk][chunk_iteration] = df_for_chunk_iteration
         
         runningtime = round(((time.time() - starttime) / 60), 5)
@@ -119,10 +102,10 @@ for j, chunk in enumerate(dict_of_chunk_series_with_test_and_train_and_forecast)
         column_index_of_high_alarm_triggered = df_for_chunk_iteration.columns.get_loc("high_alarm_triggered")
 
         # select predicted high alarms
-        column_index_of_high_alarm_triggered_forecast_arimax = df_for_chunk_iteration.columns.get_loc("high_alarm_triggered_forecast_arimax")
+        column_index_of_high_alarm_triggered_forecast_arima = df_for_chunk_iteration.columns.get_loc("high_alarm_triggered_forecast_arima")
         
         # create df with bot as column
-        high_alarms = df_for_chunk_iteration.iloc[0:,[column_index_of_high_alarm_triggered,column_index_of_high_alarm_triggered_forecast_arimax]]
+        high_alarms = df_for_chunk_iteration.iloc[0:,[column_index_of_high_alarm_triggered,column_index_of_high_alarm_triggered_forecast_arima]]
         
         for row_in_high_alarms in high_alarms.iterrows():
 
@@ -140,7 +123,7 @@ for j, chunk in enumerate(dict_of_chunk_series_with_test_and_train_and_forecast)
                 # print("tn",tn)
         
         a_new_row = {"TP":tp,"FN":fn,"FP":fp,"TN":tn}
-        a_new_row_series = pd.Series(a_new_row,name="accuracy_high_alarms_arimax")
+        a_new_row_series = pd.Series(a_new_row,name="accuracy_high_alarms_arima")
 
         accurracy_matrix_df_for_chunk_iteration = accurracy_matrix_df_for_chunk_iteration.append(a_new_row_series)
 
@@ -158,10 +141,10 @@ for j, chunk in enumerate(dict_of_chunk_series_with_test_and_train_and_forecast)
         column_index_of_low_alarm_triggered = df_for_chunk_iteration.columns.get_loc("low_alarm_triggered")
         
         # select predicted low alarms
-        column_index_of_low_alarm_triggered_forecast_arimax = df_for_chunk_iteration.columns.get_loc("low_alarm_triggered_forecast_arimax")
+        column_index_of_low_alarm_triggered_forecast_arima = df_for_chunk_iteration.columns.get_loc("low_alarm_triggered_forecast_arima")
         
         # create df with bot as column 
-        low_alarms = df_for_chunk_iteration.iloc[0:,[column_index_of_low_alarm_triggered,column_index_of_low_alarm_triggered_forecast_arimax]]
+        low_alarms = df_for_chunk_iteration.iloc[0:,[column_index_of_low_alarm_triggered,column_index_of_low_alarm_triggered_forecast_arima]]
         
         for row_in_low_alarms in low_alarms.iterrows():
 
@@ -179,7 +162,7 @@ for j, chunk in enumerate(dict_of_chunk_series_with_test_and_train_and_forecast)
                 # print("tn",tn)
         
         a_new_row = {"TP":tp,"FN":fn,"FP":fp,"TN":tn}
-        a_new_row_series = pd.Series(a_new_row,name="accuracy_low_alarms_arimax")
+        a_new_row_series = pd.Series(a_new_row,name="accuracy_low_alarms_arima")
         
         accurracy_matrix_df_for_chunk_iteration = accurracy_matrix_df_for_chunk_iteration.append(a_new_row_series)
 
@@ -198,7 +181,7 @@ print('DONE')
 print('Completed in '+str(endtime)+' minutes.')
 
 print('Starting saving dictionary.')
-output_file = open(str(path_to_data)+'accuracy_dict_for_chunk_iterations_arimax_'+str(TRAIN)+'.pickle', 'wb')
+output_file = open(str(path_to_data)+'accuracy_dict_for_chunk_iterations_arima_'+str(TRAIN)+'.pickle', 'wb')
 pickle.dump(accuracy_dict_for_chunk_iterations, output_file)
 output_file.close()
 print('Completed saving dictionary.')
