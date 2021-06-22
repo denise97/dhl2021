@@ -14,7 +14,7 @@ starttime = time.time()
 print('Start reading the input file.')
 
 # read dict where train size is expanding
-second_input_file = open(str(path_to_data) + 'dict_of_chunk_series_with_expanding_test_and_steady_train_error_chunk.pickle', 'rb')
+second_input_file = open(str(path_to_data) + 'dict_of_chunk_series_with_expanding_test_and_steady_train.pickle', 'rb')
 dict_of_chunk_series_with_test_and_train = pickle.load(second_input_file)
 second_input_file.close()
 
