@@ -63,7 +63,7 @@ for j, chunk in enumerate(dict_of_chunk_series_with_test_and_train_and_forecast)
         current_test_list = dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["TEST_LIST_MEDIAN"]
 
         try:
-            arima = pm.auto_arima(current_train_list, suppress_warnings=True, error_action='ignore')
+            arima = pm.auto_arima(current_train_list, seasonal=False, suppress_warnings=True, error_action='ignore')
             forecast_arima = pd.Series(arima.predict(TEST), index=[*range(TRAIN,TRAIN+TEST,1)], name="forecast_list_arima")
             dict_of_chunk_series_with_test_and_train_and_forecast[chunk][chunk_iteration]["FORECAST_LIST_ARIMA"] = forecast_arima
             
