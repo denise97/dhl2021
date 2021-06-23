@@ -2,6 +2,7 @@
 path_to_data = '../data/'
 import pandas as pd
 import pyarrow as pa
+import time
 
 starttime = time.time()
 print('Start reading the input file.')
@@ -24,7 +25,7 @@ STEP = 1 # move 1 * 1 h = 1 hour per step
 # Filter for chunks that have sufficient values to be used for training and testing the model
 all_chunks_value_count = chartevents_resampled.CHUNK_ID_FILLED_TH.value_counts()
 chunkid_filter = all_chunks_value_count[all_chunks_value_count >= (TRAIN + TEST)].index
-arima_data = chartevents_resampled[chartevents_resampled.CHUNK_ID_FILLED_TH.isin(chunkid_filter)]
+arima_data = chartevents_resampled[chartevents_resampled.CHUNK_ID_FILLED_TH.isin(chunkid_filter)].copy()
 # Create new HOURS_SINCE_FIRST_RECORD column containing the time difference that has passed since the first timestamp of the measurement series.
 import numpy as np
 # arima_data['MINUTES_SINCE_FIRST_RECORD'] = arima_data.groupby('CHUNK_ID_FILLED_TH')#['CHARTTIME'].transform(lambda x: (x - x.min())/np.timedelta64(1,'m'))
@@ -177,12 +178,12 @@ print('Started writing chunk iteration based dictionary for expanding train size
 
 # Write dictionaries with expanding train and fix test size to pickle file
 
-#output_file = open('arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_hr.pickle', 'wb')
-#output_file = open('arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_bp.pickle', 'wb')
-#output_file = open('arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_o2.pickle', 'wb')
-#output_file = open('arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_hr_first1000.pickle', 'wb')
-#output_file = open('arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_bp_first1000.pickle', 'wb')
-#output_file = open('arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_o2_first1000.pickle', 'wb')
+#output_file = open(str(path_to_data)+'arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_hr.pickle', 'wb')
+#output_file = open(str(path_to_data)+'arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_bp.pickle', 'wb')
+#output_file = open(str(path_to_data)+'arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_o2.pickle', 'wb')
+#output_file = open(str(path_to_data)+'arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_hr_first1000.pickle', 'wb')
+#output_file = open(str(path_to_data)+'arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_bp_first1000.pickle', 'wb')
+#output_file = open(str(path_to_data)+'arima_preprocessing/dict_of_chunk_iterations_with_expanding_train_'+str(TRAIN)+'_o2_first1000.pickle', 'wb')
 
 pickle.dump(dict_of_chunk_series_with_expanding_train_and_steady_test,output_file)
 output_file.close()
