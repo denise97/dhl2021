@@ -102,7 +102,12 @@ for chunkid in unique_chunkids:
     # Save as parquet file
     # all_chunks_dict[chunkid].to_parquet(str(path_to_data+'resample_output_test_'+str(chunkid)+'.parquet'), engine='pyarrow')
     chartevents_resampled_running = pd.concat(all_chunks_dict, axis=0).reset_index(level=0).rename(columns={'level_0':'CHUNK_ID_FILLED_TH'})
-    chartevents_resampled_running.to_parquet(str(path_to_data+'resample_output_running.parquet'), engine='pyarrow')
+    chartevents_resampled_running.to_parquet(str(path_to_data+'resample_output_running_hr.parquet'), engine='pyarrow')
+    # chartevents_resampled_running.to_parquet(str(path_to_data+'resample_output_running_bp.parquet'), engine='pyarrow')
+    # chartevents_resampled_running.to_parquet(str(path_to_data+'resample_output_running_o2.parquet'), engine='pyarrow')
+    # chartevents_resampled_running.to_parquet(str(path_to_data+'resample_output_running_hr_first1000.parquet'), engine='pyarrow')
+    # chartevents_resampled_running.to_parquet(str(path_to_data+'resample_output_running_bp_first1000.parquet'), engine='pyarrow')
+    # chartevents_resampled_running.to_parquet(str(path_to_data+'resample_output_running_o2_first1000.parquet'), engine='pyarrow')
     runningtime = round(((time.time() - starttime) / 60), 5)
     print('Completed chunk number '+str(chunkno)+', running time in minutes: '+str(runningtime))
     chunkno = chunkno+1
