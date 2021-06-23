@@ -8,7 +8,7 @@ starttime = time.time()
 path_to_data = '/hpi/fs00/share/MPSS2021BA1/data/resampling/'
 
 print('Start reading the input file.')
-# chartevents = pd.read_parquet(str(path_to_data+'resample_input_hr.parquet'), engine='pyarrow')
+chartevents = pd.read_parquet(str(path_to_data+'resample_input_hr.parquet'), engine='pyarrow')
 # chartevents = pd.read_parquet(str(path_to_data+'resample_input_bp.parquet'), engine='pyarrow')
 # chartevents = pd.read_parquet(str(path_to_data+'resample_input_o2.parquet'), engine='pyarrow')
 # chartevents = pd.read_parquet(str(path_to_data+'resample_input_hr_first1000.parquet'), engine='pyarrow')
@@ -111,7 +111,12 @@ for chunkid in unique_chunkids:
 chartevents_resampled = pd.concat(all_chunks_dict, axis=0).reset_index(level=0).rename(columns={'level_0':'CHUNK_ID_FILLED_TH'})
 
 # Save as parquet file
-chartevents_resampled.to_parquet(str(path_to_data+'resample_output_complete.parquet'), engine='pyarrow')
+chartevents_resampled.to_parquet(str(path_to_data+'resample_output_hr.parquet'), engine='pyarrow')
+# chartevents_resampled.to_parquet(str(path_to_data+'resample_output_bp.parquet'), engine='pyarrow')
+# chartevents_resampled.to_parquet(str(path_to_data+'resample_output_o2.parquet'), engine='pyarrow')
+# chartevents_resampled.to_parquet(str(path_to_data+'resample_output_hr_first1000.parquet'), engine='pyarrow')
+# chartevents_resampled.to_parquet(str(path_to_data+'resample_output_bp_first1000.parquet'), engine='pyarrow')
+# chartevents_resampled.to_parquet(str(path_to_data+'resample_output_o2_first1000.parquet'), engine='pyarrow')
 
 endtime = round(((time.time() - starttime) / 60), 5)
 print('DONE')
