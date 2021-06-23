@@ -34,7 +34,7 @@ accuracy_dict_for_chunk_iterations = {}
 chunk_iterations_with_runtime_warning = pd.DataFrame(columns=["CHUNK_ID_FILLED_TH","ITERATION","WARNING_MSG"])
 
 # Convert warnings to exceptions
-warnings.filterwarnings('error')
+warnings.filterwarnings('error', category=RuntimeWarning)
 np.seterr(all='warn')
 
 runningtime = round(((time.time() - starttime) / 60), 5)

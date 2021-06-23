@@ -41,6 +41,10 @@ dict_of_chunk_series_with_forecast_df = {}
 accuracy_dict_for_chunk_iterations = {}
 chunk_iterations_with_runtime_warning = pd.DataFrame(columns=["CHUNK_ID_FILLED_TH","ITERATION","WARNING_MSG"])
 
+# Convert warnings to exceptions
+warnings.filterwarnings('error', category=RuntimeWarning)
+np.seterr(all='warn')
+
 runningtime = round(((time.time() - starttime) / 60), 5)
 print('Completed setting up dictionaries. Running time '+str(runningtime)+' min.')
 
@@ -203,8 +207,6 @@ for j, chunk in enumerate(dict_of_chunk_series_with_test_and_train_and_forecast)
             chunk_iterations_with_runtime_warning.to_parquet(str(path_to_data)+'chunk_iterations_with_runtime_warning_for_arimax_'+str(TRAIN)+'.parquet', engine='pyarrow')
             print("RUNTIME WARNING DETECTED:")
             print(a_new_row_series)
-        
-
 
     runningtime = round(((time.time() - starttime) / 60), 5)
     print('Chunk '+str(j)+' (ID: '+str(chunk)+' ) : Completed chunk. Running time '+str(runningtime)+' min.')
@@ -214,10 +216,8 @@ endtime = round(((time.time() - starttime) / 60), 5)
 print('DONE')
 print('Completed in '+str(endtime)+' minutes.')
 
-
 print('Starting saving dictionary.')
 output_file = open(str(path_to_data)+'accuracy_dict_for_chunk_iterations_arimax_'+str(TRAIN)+'.pickle', 'wb')
 pickle.dump(accuracy_dict_for_chunk_iterations, output_file)
 output_file.close()
 print('Completed saving dictionary.')
-
