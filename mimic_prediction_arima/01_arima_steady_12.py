@@ -186,7 +186,12 @@ for j, chunk in enumerate(dict_of_chunk_series_with_test_and_train_and_forecast)
             a_new_row = {"CHUNK_ID_FILLED_TH":chunk,"ITERATION":chunk_iteration,"WARNING_MSG":rw_string}
             a_new_row_series = pd.Series(a_new_row)
             chunk_iterations_with_runtime_warning = chunk_iterations_with_runtime_warning.append(a_new_row_series, ignore_index = True)
-            chunk_iterations_with_runtime_warning.to_parquet(str(path_to_data)+'chunk_iterations_with_runtime_warning_for_arima_'+str(TRAIN)+'.parquet', engine='pyarrow')
+            # chunk_iterations_with_runtime_warning.to_parquet(str(path_to_data)+'chunk_iterations_with_runtime_warning_for_arima_'+str(TRAIN)+'_hr.parquet', engine='pyarrow')
+            # chunk_iterations_with_runtime_warning.to_parquet(str(path_to_data)+'chunk_iterations_with_runtime_warning_for_arima_'+str(TRAIN)+'_bp.parquet', engine='pyarrow')
+            # chunk_iterations_with_runtime_warning.to_parquet(str(path_to_data)+'chunk_iterations_with_runtime_warning_for_arima_'+str(TRAIN)+'_o2.parquet', engine='pyarrow')
+            chunk_iterations_with_runtime_warning.to_parquet(str(path_to_data)+'chunk_iterations_with_runtime_warning_for_arima_'+str(TRAIN)+'_hr_first1000.parquet', engine='pyarrow')
+            # chunk_iterations_with_runtime_warning.to_parquet(str(path_to_data)+'chunk_iterations_with_runtime_warning_for_arima_'+str(TRAIN)+'_bp_first1000.parquet', engine='pyarrow')
+            # chunk_iterations_with_runtime_warning.to_parquet(str(path_to_data)+'chunk_iterations_with_runtime_warning_for_arima_'+str(TRAIN)+'_o2_first1000.parquet', engine='pyarrow')
             print("RUNTIME WARNING DETECTED:")
             print(a_new_row_series)
 
