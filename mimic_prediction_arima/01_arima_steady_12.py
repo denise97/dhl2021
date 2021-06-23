@@ -16,7 +16,12 @@ print('Start reading the input file.')
 TRAIN=12
 # Run for the one or the other
 # read dict where train size is TRAIN
-input_file = open(str(path_to_data) + 'dict_of_chunk_series_with_test_and_train_' + str(TRAIN) + '.pickle', 'rb')
+# input_file = open(str(path_to_data) + 'arima_preprocessing/dict_of_chunk_iterations_with_steady_train_' + str(TRAIN) + '_hr.pickle', 'rb')
+# input_file = open(str(path_to_data) + 'arima_preprocessing/dict_of_chunk_iterations_with_steady_train_' + str(TRAIN) + '_bp.pickle', 'rb')
+# input_file = open(str(path_to_data) + 'arima_preprocessing/dict_of_chunk_iterations_with_steady_train_' + str(TRAIN) + '_o2.pickle', 'rb')
+input_file = open(str(path_to_data) + 'arima_preprocessing/dict_of_chunk_iterations_with_steady_train_' + str(TRAIN) + '_hr_first1000.pickle', 'rb')
+# input_file = open(str(path_to_data) + 'arima_preprocessing/dict_of_chunk_iterations_with_steady_train_' + str(TRAIN) + '_bp_first1000.pickle', 'rb')
+# input_file = open(str(path_to_data) + 'arima_preprocessing/dict_of_chunk_iterations_with_steady_train_' + str(TRAIN) + '_o2_first1000.pickle', 'rb')
 dict_of_chunk_series_with_test_and_train = pickle.load(input_file)
 input_file.close()
 
@@ -194,7 +199,12 @@ print('DONE')
 print('Completed in '+str(endtime)+' minutes.')
 
 print('Starting saving dictionary.')
-output_file = open(str(path_to_data)+'accuracy_dict_for_chunk_iterations_arima_'+str(TRAIN)+'.pickle', 'wb')
+# output_file = open(str(path_to_data)+'accuracy_dict_for_chunk_iterations_arima_'+str(TRAIN)+'_hr.pickle', 'wb')
+# output_file = open(str(path_to_data)+'accuracy_dict_for_chunk_iterations_arima_'+str(TRAIN)+'_bp.pickle', 'wb')
+# output_file = open(str(path_to_data)+'accuracy_dict_for_chunk_iterations_arima_'+str(TRAIN)+'_o2.pickle', 'wb')
+output_file = open(str(path_to_data)+'accuracy_dict_for_chunk_iterations_arima_'+str(TRAIN)+'_hr_first1000.pickle', 'wb')
+# output_file = open(str(path_to_data)+'accuracy_dict_for_chunk_iterations_arima_'+str(TRAIN)+'_bp_first1000.pickle', 'wb')
+# output_file = open(str(path_to_data)+'accuracy_dict_for_chunk_iterations_arima_'+str(TRAIN)+'_o2_first1000.pickle', 'wb')
 pickle.dump(accuracy_dict_for_chunk_iterations, output_file)
 output_file.close()
 print('Completed saving dictionary.')
