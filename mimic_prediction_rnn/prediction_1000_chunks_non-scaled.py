@@ -1,5 +1,5 @@
 """
-    PREDICTION WITH ALL RNN MODELS, MEDIAN VALUE FOR FIRST 1000 RESAMPLED CHUNKS AND SCALED PREDICTIONS
+    PREDICTION WITH ALL RNN MODELS, MEDIAN VALUE FOR FIRST 1000 RESAMPLED CHUNKS AND NON-SCALED PREDICTIONS
 
     This script assumes that there is already the subdirectory '/darts' in the directories '/plots' and '/data'.
 
@@ -9,7 +9,6 @@
 
 
 from darts import TimeSeries
-from darts.dataprocessing.transformers import Scaler
 from darts.metrics import mse
 from darts.models import RNNModel
 
@@ -26,9 +25,6 @@ if not os.path.isdir('./data/darts/1000_chunks'):
     os.mkdir('./data/darts/1000_chunks')
 if not os.path.isdir('./plots/darts/1000_chunks'):
     os.mkdir('./plots/darts/1000_chunks')
-
-# Create scaler for normalization of values between 0 and 1
-scaler = Scaler()
 
 for model_type in ['RNN', 'LSTM', 'GRU']:
     print(f'#################################\nCurrent Model Type: {model_type}\n#################################',
@@ -47,7 +43,8 @@ for model_type in ['RNN', 'LSTM', 'GRU']:
 
     # TODO: NaN values in predictions of O2 series with all model types
     for parameter in ['hr', 'bp']:
-        print(f'#################################\nCurrent Parameter: {parameter.upper()}\n#################################',
+        print(f'#################################\nCurrent Parameter: {parameter.upper()}\n'
+              f'#################################',
               file=sys.stderr)
 
         # Create sub folders for each parameter
@@ -76,16 +73,16 @@ for model_type in ['RNN', 'LSTM', 'GRU']:
             if len(current_series) < 13:
                 continue
 
-            train_series[chunk_id] = scaler.fit_transform(TimeSeries.from_dataframe(
+            train_series[chunk_id] = TimeSeries.from_dataframe(
                 df=current_series,
                 time_col='CHARTTIME',
                 value_cols=['VITAL_PARAMTER_VALUE_MEDIAN_RESAMPLING'],
-                freq='H'))
+                freq='H')
 
         print(f'#Chunks for training: {len(train_series)}', file=sys.stderr)
 
         # Save training dict as pickle file
-        train_series_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/01_train_series.pickle', 'wb')
+        train_series_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/01_non-scaled_train_series.pickle', 'wb')
         pickle.dump(train_series, train_series_f, protocol=pickle.HIGHEST_PROTOCOL)
         train_series_f.close()
 
@@ -99,16 +96,16 @@ for model_type in ['RNN', 'LSTM', 'GRU']:
             if len(current_series) < 13:
                 continue
 
-            pred_series[chunk_id] = scaler.fit_transform(TimeSeries.from_dataframe(
+            pred_series[chunk_id] = TimeSeries.from_dataframe(
                 df=current_series,
                 time_col='CHARTTIME',
                 value_cols=['VITAL_PARAMTER_VALUE_MEDIAN_RESAMPLING'],
-                freq='H'))
+                freq='H')
 
         print(f'#Chunks to predict: {len(pred_series)}', file=sys.stderr)
 
         # Save prediction dict as pickle file
-        pred_series_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/02_pred_series.pickle', 'wb')
+        pred_series_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/02_non-scaled_pred_series.pickle', 'wb')
         pickle.dump(pred_series, pred_series_f, protocol=pickle.HIGHEST_PROTOCOL)
         pred_series_f.close()
 
@@ -119,7 +116,8 @@ for model_type in ['RNN', 'LSTM', 'GRU']:
         param_model.fit(series=list(train_series.values()))
 
         # Save pre-trained model as pickle file
-        pretrained_model_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/03_pre-trained_model.pickle', 'wb')
+        pretrained_model_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/03_non-scaled_pre-trained_model'
+                                  f'.pickle', 'wb')
         pickle.dump(param_model, pretrained_model_f, protocol=pickle.HIGHEST_PROTOCOL)
         pretrained_model_f.close()
 
@@ -130,7 +128,8 @@ for model_type in ['RNN', 'LSTM', 'GRU']:
                   file=sys.stderr)
 
             # Load original pre-trained model for first iteration
-            model_original_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/03_pre-trained_model.pickle', 'rb')
+            model_original_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/03_non-scaled_pre-trained_model'
+                                    f'.pickle', 'rb')
             model_for_iteration = pickle.load(model_original_f)
             model_original_f.close()
 
@@ -145,7 +144,7 @@ for model_type in ['RNN', 'LSTM', 'GRU']:
 
                 # Take last pre-trained model (or original pre-trained model in first iteration)
                 if iteration > 0:
-                    model_last_iteration_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/04_pre'
+                    model_last_iteration_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/04_non-scaled_pre'
                                                   f'-trained_model_{chunk_id}_{iteration-1}.pickle', 'rb')
                     model_for_iteration = pickle.load(model_last_iteration_f)
                     model_last_iteration_f.close()
@@ -156,7 +155,8 @@ for model_type in ['RNN', 'LSTM', 'GRU']:
                     series=pred_series[chunk_id][:12+iteration])
 
                 # Save model after each iteration
-                extended_model_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/04_pre-trained_model_{chunk_id}_{iteration}.pickle', 'wb')
+                extended_model_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/04_non-scaled_pre'
+                                        f'-trained_model_{chunk_id}_{iteration}.pickle', 'wb')
                 pickle.dump(model_for_iteration, extended_model_f, protocol=pickle.HIGHEST_PROTOCOL)
                 extended_model_f.close()
 
@@ -167,9 +167,9 @@ for model_type in ['RNN', 'LSTM', 'GRU']:
 
                 # Save intermediate or final prediction of chunk as pickle file
                 if iteration == len(pred_series[chunk_id]) - 12 - 1:
-                    final_pred_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/05_prediction_{chunk_id}_{iteration}_final.pickle', 'wb')
+                    final_pred_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/05_non-scaled_prediction_{chunk_id}_{iteration}_final.pickle', 'wb')
                 else:
-                    final_pred_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/05_prediction_{chunk_id}_{iteration}.pickle', 'wb')
+                    final_pred_f = open(f'./data/darts/1000_chunks/{model_type}/{parameter}/05_non-scaled_prediction_{chunk_id}_{iteration}.pickle', 'wb')
 
                 pickle.dump(final_pred, final_pred_f, protocol=pickle.HIGHEST_PROTOCOL)
                 final_pred_f.close()
@@ -180,8 +180,6 @@ for model_type in ['RNN', 'LSTM', 'GRU']:
                 time_col='Time',
                 value_cols=['Value'],
                 freq='H')
-
-            # TODO: Save final rescaled DataFrame
 
             # Calculate MSE
             mse_for_chunk = mse(pred_series[chunk_id][12:], final_pred)
@@ -198,9 +196,9 @@ for model_type in ['RNN', 'LSTM', 'GRU']:
             plt.suptitle(f'Prediction of {parameter.upper()} with 1000 Chunk IDs and {model_type} model', fontweight='bold')
             plt.title(f'MSE: {round(mse_for_chunk, 4)}%')
             plt.xlabel('Time')
-            plt.ylabel('Scaled Value')
+            plt.ylabel('Value')
 
-            plt.savefig(f'./plots/darts/1000_chunks/{model_type}/{parameter}/prediction_{chunk_id}.png', dpi=1200)
+            plt.savefig(f'./plots/darts/1000_chunks/{model_type}/{parameter}/prediction_{chunk_id}_non-scaled.png', dpi=1200)
 
 print('\nFinished.', file=sys.stderr)
 sys.stderr.close()
