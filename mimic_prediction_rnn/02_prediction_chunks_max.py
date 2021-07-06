@@ -209,8 +209,7 @@ for model_type in model_types:
         print('Pre-train model...', file=sys.stderr)
         param_model = model
 
-        # Pre-train with 80% of relevant series
-        # TODO: add argument val_series=list(test_series.values()) ?
+        # Pre-train with 80% of relevant series (steady prediction set)
         param_model.fit(series=list(train_series.values()),
                         covariates=list(train_series_exo.values()),
                         verbose=True)
@@ -221,7 +220,7 @@ for model_type in model_types:
         pickle.dump(param_model, pretrained_model_f, protocol=pickle.HIGHEST_PROTOCOL)
         pretrained_model_f.close()
 
-        # TODO: Create chunk-level confusion matrix
+        # TODO: Add missing columns (see analysis script)
         confusion_matrix_chunks = pd.DataFrame(columns=['CHUNK_ID', 'ALARM_TYPE', 'N_ITERATIONS', 'FP', 'TP', 'FN', 'TN'])
 
         # Iterate (at most 20) chunk IDs we want to predict
@@ -347,6 +346,7 @@ for model_type in model_types:
             'MODEL': model_type,
             'ENDOGENOUS': endogenous_input,
             'EXOGENOUS': exogenous_input,
+            # TODO: improve naming (expanding with RNNModel means hourly prediction) or remove column
             'FORECAST_TYPE': 'Expanding',
             'FIRST_FORECAST': input_length + output_length,
             'ALARM_TYPE': 'High',
