@@ -209,7 +209,7 @@ for model_type in model_types:
         print('Pre-train model...', file=sys.stderr)
         param_model = model
 
-        # Pre-train with 80% of relevant series (steady prediction set)
+        # Pre-train with 80% of relevant series (steady training set)
         param_model.fit(series=list(train_series.values()),
                         covariates=list(train_series_exo.values()),
                         verbose=True)
