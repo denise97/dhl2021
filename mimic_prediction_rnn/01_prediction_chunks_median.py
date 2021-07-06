@@ -320,6 +320,8 @@ for model_type in model_types:
         # Fill Model-level Confusion Matrix #
         #####################################
 
+        # TODO: differentiate between low and high threshold violation
+
         # Fill model-level confusion matrix per parameter and model type
         FP_all = confusion_matrix_chunks['FP'].sum()
         TP_all = confusion_matrix_chunks['TP'].sum()
