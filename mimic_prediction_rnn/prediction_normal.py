@@ -38,11 +38,9 @@ output_length = 1
 # Create Folders #
 ##################
 
-# Create sub folders for this script
+# Create main folder for this script
 if not os.path.isdir(f'./data/darts/{n_chunks}_chunks'):
     os.mkdir(f'./data/darts/{n_chunks}_chunks')
-if not os.path.isdir(f'./plots/darts/{n_chunks}_chunks'):
-    os.mkdir(f'./plots/darts/{n_chunks}_chunks')
 
 # Create model-level confusion matrix
 confusion_matrix_models = pd.DataFrame(
@@ -63,14 +61,11 @@ for model_type in model_types:
     print(f'\n##############################\nCurrent Model Type: {model_type}\n##############################\n',
           file=sys.stderr)
 
-    # Create sub folders for each model type
+    # Create sub folder for each model type
     if not os.path.isdir(f'./data/darts/{n_chunks}_chunks/{model_type}'):
         os.mkdir(f'./data/darts/{n_chunks}_chunks/{model_type}')
-    if not os.path.isdir(f'./plots/darts/{n_chunks}_chunks/{model_type}'):
-        os.mkdir(f'./plots/darts/{n_chunks}_chunks/{model_type}')
 
     # Create model per model type
-    # TODO: try less/ more epochs than 100
     model = RNNModel(model=model_type,
                      input_chunk_length=input_length,
                      output_chunk_length=output_length,
@@ -81,17 +76,13 @@ for model_type in model_types:
         print(f'\n##############################\nCurrent Parameter: {parameter.upper()}\n'
               f'##############################\n', file=sys.stderr)
 
-        # Create sub folders for each parameter
+        # Create sub folder for each parameter
         if not os.path.isdir(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}'):
             os.mkdir(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}')
-        if not os.path.isdir(f'./plots/darts/{n_chunks}_chunks/{model_type}/{parameter}'):
-            os.mkdir(f'./plots/darts/{n_chunks}_chunks/{model_type}/{parameter}')
 
-        # Create sub folder for input type (median as endogenous variable)
+        # Create sub folder for the input type (median as endogenous variable)
         if not os.path.isdir(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}'):
             os.mkdir(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}')
-        if not os.path.isdir(f'./plots/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}'):
-            os.mkdir(f'./plots/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}')
 
         ###############################
         # Preprocess Resampled Chunks #
