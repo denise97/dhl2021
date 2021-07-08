@@ -51,7 +51,7 @@ if not os.path.isdir(f'./data/darts/{n_chunks}_chunks'):
 # Create model-level confusion matrix
 confusion_matrix_models = pd.DataFrame(
     columns=['ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE',
-             'FP', 'TP', 'FN', 'TN', 'N_CHUNKS', 'N_ITERATIONS'])
+             'FP', 'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_CHUNKS', 'N_ITERATIONS'])
 
 # Exogenous input is always median resampled for prediction with covariates
 exogenous_input = 'MEDIAN'
@@ -353,6 +353,7 @@ for model_type in model_types:
         # Fill Model-level Confusion Matrix #
         #####################################
 
+        # Fill model-level confusion matrix per parameter and model type (HIGH alarm forecasting)
         confusion_matrix_chunks_high = confusion_matrix_chunks[confusion_matrix_chunks['ALARM_TYPE'] == 'High']
 
         confusion_matrix_models = confusion_matrix_models.append({

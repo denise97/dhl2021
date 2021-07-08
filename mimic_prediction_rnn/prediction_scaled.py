@@ -46,7 +46,7 @@ if not os.path.isdir(f'./data/darts/{n_chunks}_chunks'):
 # Create model-level confusion matrix
 confusion_matrix_models = pd.DataFrame(
     columns=['ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE',
-             'FP', 'TP', 'FN', 'TN', 'N_CHUNKS', 'N_ITERATIONS'])
+             'FP', 'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_CHUNKS', 'N_ITERATIONS'])
 
 # Note: Not changeable, see other script for MAX and MIN
 endogenous_input = 'MEDIAN'
