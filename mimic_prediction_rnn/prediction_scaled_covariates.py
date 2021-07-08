@@ -50,7 +50,7 @@ if not os.path.isdir(f'./data/darts/{n_chunks}_chunks'):
 
 # Create model-level confusion matrix
 confusion_matrix_models = pd.DataFrame(
-    columns=['ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FORECAST_TYPE', 'FIRST_FORECAST', 'ALARM_TYPE',
+    columns=['ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE',
              'FP', 'TP', 'FN', 'TN', 'N_CHUNKS', 'N_ITERATIONS'])
 
 # Exogenous input is always median resampled for prediction with covariates
@@ -215,9 +215,9 @@ for model_type in model_types:
             # Note: Have to use DataFrame because append() function of TimeSeries do not work
             final_pred = pd.DataFrame(columns=['Time', 'Value'])
 
-            #########################################
-            # Predict Chunk via Expanding Technique #
-            #########################################
+            ######################################
+            # Predict Chunk Hourly per Iteration #
+            ######################################
 
             # Do not iterate whole series-to-predict because of starting length of 12 (first prediction is for time 13)
             for iteration in range(len(pred_series_endo[chunk_id]) - input_length):
@@ -353,7 +353,7 @@ for model_type in model_types:
         # Fill Model-level Confusion Matrix #
         #####################################
 
-        confusion_matrix_chunks_high = confusion_matrix_chunks[confusion_matrix_chunks['ALARM_TYPE'] == 'HIGH']
+        confusion_matrix_chunks_high = confusion_matrix_chunks[confusion_matrix_chunks['ALARM_TYPE'] == 'High']
 
         confusion_matrix_models = confusion_matrix_models.append({
             # R = RNNModel, model_numbers = {01, ..., 09} and H = High
@@ -375,7 +375,7 @@ for model_type in model_types:
         }, ignore_index=True)
 
         # Fill model-level confusion matrix per parameter and model type (LOW alarm forecasting)
-        confusion_matrix_chunks_low = confusion_matrix_chunks[confusion_matrix_chunks['ALARM_TYPE'] == 'LOW']
+        confusion_matrix_chunks_low = confusion_matrix_chunks[confusion_matrix_chunks['ALARM_TYPE'] == 'Low']
 
         confusion_matrix_models = confusion_matrix_models.append({
             # R = RNNModel, model_numbers = {01, ..., 09} and L = Low
