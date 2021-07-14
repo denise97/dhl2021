@@ -2,8 +2,8 @@
     PREDICTION WITH ALL RNN MODELS, ALL PARAMETERS, AND MEDIAN RESAMPLED CHUNKS
 
     This script assumes that there is already the subdirectory '/darts' in the directory '/data'. If you want to adjust
-    which input size is taken and what parameters and models are used for the prediction, have a look at the three v
-    ariables from line 24 to 35.
+    which input size is taken and what parameters and models are used for the prediction, have a look at the three
+    variables from line 25 to 36.
 
     Lastly, you have to install some packages:
     pip3 install u8darts[torch] seaborn
@@ -35,9 +35,9 @@ n_chunks = 1000
 input_length = 12
 output_length = 1
 
-##################
-# Create Folders #
-##################
+###########################################
+# Create Folders, Init Variables & Models #
+###########################################
 
 # Create main folder for this script
 if not os.path.isdir(f'./data/darts/{n_chunks}_chunks'):
@@ -48,14 +48,14 @@ confusion_matrix_models = pd.DataFrame(
     columns=['ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE',
              'FP', 'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_CHUNKS', 'N_ITERATIONS'])
 
-# Note: Not changeable, see other script for MAX and MIN
+# Note: Not changeable, see other scripts ending with "covariates" for MAX and MIN
 endogenous_input = 'MEDIAN'
 exogenous_input = 'n/a'
 
 model_numbers = {
-    ('RNN',     'MEDIAN'):  '10',
-    ('LSTM',    'MEDIAN'):  '13',
-    ('GRU',     'MEDIAN'):  '16'
+    ('RNN',     'MEDIAN'):  '07',
+    ('LSTM',    'MEDIAN'):  '09',
+    ('GRU',     'MEDIAN'):  '11'
 }
 
 # Note: Only use filler for now, remove after resampling script is fixed
@@ -118,14 +118,14 @@ for model_type in model_types:
         # Calculate number of chunks corresponding to 20% of chunks
         twenty_percent = int((20 * len(relevant_chunk_ids)) / 100)
 
-        # Extract first 20% of series for prediction
-        pred_series = {k: relevant_series[k] for k in list(relevant_series)[:twenty_percent]}
-
         # Extract last 80% of series for training
         train_series = {k: relevant_series[k] for k in list(relevant_series)[twenty_percent:]}
 
+        # Extract first 20% of series for prediction
+        pred_series = {k: relevant_series[k] for k in list(relevant_series)[:twenty_percent]}
+
         print(f'#Chunks for training: {len(train_series)}', file=sys.stderr)
-        print(f'#Chunks to predict: {len(pred_series)}', file=sys.stderr)
+        print(f'#Chunks for prediction: {len(pred_series)}', file=sys.stderr)
 
         # Save training dict as pickle file
         train_series_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
@@ -152,7 +152,7 @@ for model_type in model_types:
 
         # Save pre-trained model as pickle file
         pretrained_model_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
-                                  f'03_pre-trained_model_normal.pickle', 'wb')
+                                  f'04_pre-trained_model_normal.pickle', 'wb')
         pickle.dump(param_model, pretrained_model_f, protocol=pickle.HIGHEST_PROTOCOL)
         pretrained_model_f.close()
 
@@ -166,43 +166,29 @@ for model_type in model_types:
             print(f'\n##############################\nCurrent Chunk ID: {chunk_id}\n##############################\n',
                   file=sys.stderr)
 
-            # Load original pre-trained model for first iteration
+            # Load original pre-trained model
             model_original_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
-                                    f'03_pre-trained_model_normal.pickle', 'rb')
-            model_for_iteration = pickle.load(model_original_f)
+                                    f'04_pre-trained_model_normal.pickle', 'rb')
+            model_for_iterations = pickle.load(model_original_f)
             model_original_f.close()
 
             # Create empty DataFrame for prediction result
             # Note: Have to use DataFrame because append() function of TimeSeries do not work
             final_pred = pd.DataFrame(columns=['Time', 'Value'])
 
-            ######################################
-            # Predict Chunk Hourly per Iteration #
-            ######################################
+            ########################
+            # Hourly Predict Chunk #
+            ########################
 
             # Do not iterate whole series-to-predict because of starting length of 12 (first prediction is for time 13)
             for iteration in range(len(pred_series[chunk_id]) - input_length):
 
                 print(f'Iteration: {iteration}', file=sys.stderr)
 
-                # Take last pre-trained model (or original pre-trained model in first iteration)
-                if iteration > 0:
-                    model_last_iteration_f = open(
-                        f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
-                        f'04_pre-trained_model_{chunk_id}_{iteration - 1}_normal.pickle', 'rb')
-                    model_for_iteration = pickle.load(model_last_iteration_f)
-                    model_last_iteration_f.close()
-
                 # Predict one measurement
-                current_pred = model_for_iteration.predict(
+                current_pred = model_for_iterations.predict(
                     n=output_length,
                     series=pred_series[chunk_id][:input_length + iteration])
-
-                # Save model after each iteration
-                extended_model_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
-                                        f'04_pre-trained_model_{chunk_id}_{iteration}_normal.pickle', 'wb')
-                pickle.dump(model_for_iteration, extended_model_f, protocol=pickle.HIGHEST_PROTOCOL)
-                extended_model_f.close()
 
                 # Add intermediate prediction result to DataFrame
                 final_pred = final_pred.append({'Time': current_pred.start_time(),
@@ -235,7 +221,7 @@ for model_type in model_types:
                                < original_chunk['THRESHOLD_VALUE_LOW'],
                                'LOW_ALARM_TRIGGERED'] = True
 
-            # Add column with predicted value to chunk infos
+            # Add column with predicted value to chunk
             original_chunk['VALUE_PREDICTION'] = final_pred.Value
 
             # Add boolean indicating triggered high alarm for predicted value
@@ -314,7 +300,7 @@ for model_type in model_types:
         confusion_matrix_chunks_high = confusion_matrix_chunks[confusion_matrix_chunks['ALARM_TYPE'] == 'High']
 
         confusion_matrix_models = confusion_matrix_models.append({
-            # R = RNNModel, model_number = {10, ..., 19} and H = High
+            # R = RNNModel, model_number = {01, ..., 12} and H = High
             'ID': f'{parameter.upper()}_R_{model_numbers[model_type, endogenous_input]}_H',
             'PARAMETER': parameter.upper(),
             'MODEL': model_type,
@@ -336,7 +322,7 @@ for model_type in model_types:
         confusion_matrix_chunks_low = confusion_matrix_chunks[confusion_matrix_chunks['ALARM_TYPE'] == 'Low']
 
         confusion_matrix_models = confusion_matrix_models.append({
-            # R = RNNModel, model_number = {10, ..., 19} and L = Low
+            # R = RNNModel, model_number = {01, ..., 12} and L = Low
             'ID': f'{parameter.upper()}_R_{model_numbers[model_type, endogenous_input]}_L',
             'PARAMETER': parameter.upper(),
             'MODEL': model_type,
