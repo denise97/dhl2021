@@ -11,7 +11,7 @@
 
 
 from darts import TimeSeries
-from darts.dataprocessing.transformers import Scaler
+from darts.dataprocessing.transformers import Scaler, MissingValuesFiller
 from darts.models import RNNModel
 
 import os
@@ -28,7 +28,7 @@ import sys
 model_types = ['RNN', 'LSTM', 'GRU']
 
 # Parameter can be {'hr', 'bp', 'o2'}
-parameters = ['hr', 'bp']
+parameters = ['hr', 'bp', 'o2']
 
 # Endogenous input for prediction with covariates can be MIN or MAX
 endogenous_input = 'MAX'
@@ -65,6 +65,9 @@ model_numbers = {
     ('GRU',     'MIN'):     '09'
 }
 
+# Note: Only use filler for now, remove after resampling script is fixed
+filler = MissingValuesFiller()
+
 for model_type in model_types:
     print(f'\n##############################\nCurrent Model Type: {model_type}\n##############################\n',
           file=sys.stderr)
@@ -79,7 +82,6 @@ for model_type in model_types:
                      output_chunk_length=output_length,
                      batch_size=input_length)  # batch_size must be <= input_length (current bug in Darts)
 
-    # TODO: NaN values in predictions of O2 series with all model types
     for parameter in parameters:
         print(f'\n##############################\nCurrent Parameter: {parameter.upper()}\n'
               f'##############################\n', file=sys.stderr)
@@ -98,9 +100,9 @@ for model_type in model_types:
 
         print('Read resampled series and extract chunks for training and prediction...', file=sys.stderr)
 
-        # Extract first x=n_chunks resampled series
+        # Extract first n_chunks resampled series
         resampled = pd.read_parquet(f'./data/resampling/resample_output_{parameter}_first{n_chunks}.parquet',
-                                               engine='pyarrow')
+                                    engine='pyarrow')
 
         # Extract relevant chunks
         relevant_series_endo, relevant_series_exo = dict(), dict()
@@ -111,17 +113,17 @@ for model_type in model_types:
 
             # At least input_chunk_length + output_chunk_length = 12 + 1 = 13 data points are required
             if len(current_series) > 12:
-                relevant_series_endo[chunk_id] = TimeSeries.from_dataframe(
+                relevant_series_endo[chunk_id] = filler.transform(TimeSeries.from_dataframe(
                     df=current_series,
                     time_col='CHARTTIME',
                     value_cols=[f'VITAL_PARAMTER_VALUE_{endogenous_input}_RESAMPLING'],
-                    freq='H')
+                    freq='H'))
 
-                relevant_series_exo[chunk_id] = TimeSeries.from_dataframe(
+                relevant_series_exo[chunk_id] = filler.transform(TimeSeries.from_dataframe(
                     df=current_series,
                     time_col='CHARTTIME',
                     value_cols=[f'VITAL_PARAMTER_VALUE_{exogenous_input}_RESAMPLING'],
-                    freq='H')
+                    freq='H'))
 
         # Define scaler per resampling method
         endo_scaler, exo_scaler = Scaler(), Scaler()
@@ -151,7 +153,7 @@ for model_type in model_types:
 
         # Note: dicts with training and prediction chunks of exogenous series have the same lengths
         print(f'#Chunks for training: {len(train_series_endo)}', file=sys.stderr)
-        print(f'#Chunks to prediction: {len(pred_series_endo)}', file=sys.stderr)
+        print(f'#Chunks to predict: {len(pred_series_endo)}', file=sys.stderr)
 
         # Save exogenous training dict as pickle file
         train_series_exo_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
