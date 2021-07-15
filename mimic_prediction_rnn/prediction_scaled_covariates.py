@@ -136,6 +136,8 @@ for model_type in model_types:
         # Iterate five times different 20% of the chunks (= 5 windows) to predict all chunks
         for window_idx in range(5):
 
+            print(f'{window_idx + 1}. window\n', file=sys.stderr)
+
             # Extract 20% of series for prediction and catch last window to avoid ignoring chunks
             if window_idx == 4:
                 pred_series_endo_high = {chunk_id: relevant_series_endo_high[chunk_id]
@@ -361,13 +363,13 @@ for model_type in model_types:
 
                 # Add boolean indicating triggered high alarm for original value
                 original_chunk['HIGH_ALARM_TRIGGERED'] = False
-                original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input}_RESAMPLING']
+                original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input_high}_RESAMPLING']
                                    > original_chunk['THRESHOLD_VALUE_HIGH'],
                                    'HIGH_ALARM_TRIGGERED'] = True
 
                 # Add boolean indicating triggered low alarm original value
                 original_chunk['LOW_ALARM_TRIGGERED'] = False
-                original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input}_RESAMPLING']
+                original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input_low}_RESAMPLING']
                                    < original_chunk['THRESHOLD_VALUE_LOW'],
                                    'LOW_ALARM_TRIGGERED'] = True
 

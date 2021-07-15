@@ -121,6 +121,8 @@ for model_type in model_types:
         # Iterate five times different 20% of the chunks (= 5 windows) to predict all chunks
         for window_idx in range(5):
 
+            print(f'{window_idx+1}. window\n', file=sys.stderr)
+
             # Extract 20% of series for prediction and catch last window to avoid ignoring chunks
             if window_idx == 4:
                 pred_series = {chunk_id: relevant_series[chunk_id]

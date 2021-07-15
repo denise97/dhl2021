@@ -121,6 +121,8 @@ for model_type in model_types:
         # Iterate five times different 20% of the chunks (= 5 windows) to predict all chunks
         for window_idx in range(5):
 
+            print(f'{window_idx + 1}. window\n', file=sys.stderr)
+
             # Extract 20% of series for prediction and catch last window to avoid ignoring chunks
             if window_idx == 4:
                 pred_series = {chunk_id: relevant_series[chunk_id]
@@ -166,8 +168,8 @@ for model_type in model_types:
             pretrained_model_f.close()
 
             confusion_matrix_chunks = pd.DataFrame(
-                columns=['CHUNK_ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE', 'FP',
-                         'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_ITERATIONS', ])
+                columns=['CHUNK_ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE',
+                         'FP', 'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_ITERATIONS', ])
 
             # Iterate chunk IDs we want to predict
             for chunk_id in pred_series.keys():
