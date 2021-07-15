@@ -118,207 +118,234 @@ for model_type in model_types:
         # Calculate number of chunks corresponding to 20% of chunks
         twenty_percent = int((20 * len(relevant_chunk_ids)) / 100)
 
-        # Extract last 80% of series for training
-        train_series = {k: relevant_series[k] for k in list(relevant_series)[twenty_percent:]}
+        # Iterate five times different 20% of the chunks (= 5 windows) to predict all chunks
+        for window_idx in range(5):
 
-        # Extract first 20% of series for prediction
-        pred_series = {k: relevant_series[k] for k in list(relevant_series)[:twenty_percent]}
+            # Extract 20% of series for prediction and catch last window to avoid ignoring chunks
+            if window_idx == 4:
+                pred_series = {chunk_id: relevant_series[chunk_id]
+                               for chunk_id in list(relevant_series)[twenty_percent * window_idx:]}
+            else:
+                pred_series = {chunk_id: relevant_series[chunk_id]
+                               for chunk_id in list(relevant_series)[twenty_percent*window_idx:twenty_percent*(window_idx+1)]}
 
-        # Define and fit scalers for training and prediction set
-        train_scaler, pred_scaler = Scaler(), Scaler()
-        train_scaler = train_scaler.fit(list(train_series.values()))
-        pred_scaler = pred_scaler.fit(list(pred_series.values()))
+            # Extract 80% of series for training
+            train_series = {chunk_id: relevant_series[chunk_id] for chunk_id in relevant_chunk_ids
+                            if chunk_id not in list(pred_series.keys())}
 
-        # Normalize values
-        for chunk_id in train_series.keys():
-            train_series[chunk_id] = train_scaler.transform(train_series[chunk_id])
+            # Define and fit scalers for training and prediction set
+            train_scaler, pred_scaler = Scaler(), Scaler()
+            train_scaler = train_scaler.fit(list(train_series.values()))
+            pred_scaler = pred_scaler.fit(list(pred_series.values()))
 
-        for chunk_id in pred_series.keys():
-            pred_series[chunk_id] = pred_scaler.transform(pred_series[chunk_id])
+            # Normalize values
+            for chunk_id in train_series.keys():
+                train_series[chunk_id] = train_scaler.transform(train_series[chunk_id])
 
-        print(f'#Chunks for training: {len(train_series)}', file=sys.stderr)
-        print(f'#Chunks for prediction: {len(pred_series)}', file=sys.stderr)
+            for chunk_id in pred_series.keys():
+                pred_series[chunk_id] = pred_scaler.transform(pred_series[chunk_id])
 
-        # Save training dict as pickle file
-        train_series_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
-                              f'01_train_series_scaled.pickle', 'wb')
-        pickle.dump(train_series, train_series_f, protocol=pickle.HIGHEST_PROTOCOL)
-        train_series_f.close()
+            print(f'#Chunks for training: {len(train_series)}', file=sys.stderr)
+            print(f'#Chunks for prediction: {len(pred_series)}', file=sys.stderr)
 
-        # Save prediction dict as pickle file
-        pred_series_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
-                             f'02_pred_series_scaled.pickle', 'wb')
-        pickle.dump(pred_series, pred_series_f, protocol=pickle.HIGHEST_PROTOCOL)
-        pred_series_f.close()
+            # Save training dict as pickle file
+            train_series_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
+                                  f'01_train_series_scaled_window{window_idx}.pickle', 'wb')
+            pickle.dump(train_series, train_series_f, protocol=pickle.HIGHEST_PROTOCOL)
+            train_series_f.close()
 
-        # Save scaler for chunks to predict as pickle file
-        pred_scaler_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
-                             f'03_pred_scaler.pickle', 'wb')
-        pickle.dump(pred_scaler, pred_scaler_f, protocol=pickle.HIGHEST_PROTOCOL)
-        pred_scaler_f.close()
+            # Save prediction dict as pickle file
+            pred_series_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
+                                 f'02_pred_series_scaled_window{window_idx}.pickle', 'wb')
+            pickle.dump(pred_series, pred_series_f, protocol=pickle.HIGHEST_PROTOCOL)
+            pred_series_f.close()
 
-        ###################
-        # Pre-train Model #
-        ###################
+            # Save scaler for chunks to predict as pickle file
+            pred_scaler_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
+                                 f'03_pred_scaler_window{window_idx}.pickle', 'wb')
+            pickle.dump(pred_scaler, pred_scaler_f, protocol=pickle.HIGHEST_PROTOCOL)
+            pred_scaler_f.close()
 
-        print('Pre-train model...', file=sys.stderr)
-        param_model = model
+            ###################
+            # Pre-train Model #
+            ###################
 
-        # Pre-train with 80% of relevant series (steady training set)
-        param_model.fit(series=list(train_series.values()),
-                        verbose=True)
+            print('Pre-train model...', file=sys.stderr)
+            param_model = model
 
-        # Save pre-trained model as pickle file
-        pretrained_model_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
-                                  f'04_pre-trained_model_scaled.pickle', 'wb')
-        pickle.dump(param_model, pretrained_model_f, protocol=pickle.HIGHEST_PROTOCOL)
-        pretrained_model_f.close()
+            # Pre-train with 80% of relevant series (steady training set)
+            param_model.fit(series=list(train_series.values()),
+                            verbose=True)
 
-        confusion_matrix_chunks = pd.DataFrame(
-            columns=['CHUNK_ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE', 'FP',
-                     'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_ITERATIONS', ])
+            # Save pre-trained model as pickle file
+            pretrained_model_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
+                                      f'04_pre-trained_model_scaled_window{window_idx}.pickle', 'wb')
+            pickle.dump(param_model, pretrained_model_f, protocol=pickle.HIGHEST_PROTOCOL)
+            pretrained_model_f.close()
 
-        # Iterate chunk IDs we want to predict
-        for chunk_id in pred_series.keys():
+            confusion_matrix_chunks = pd.DataFrame(
+                columns=['CHUNK_ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE', 'FP',
+                         'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_ITERATIONS', ])
 
-            print(f'\n##############################\nCurrent Chunk ID: {chunk_id}\n##############################\n',
-                  file=sys.stderr)
+            # Iterate chunk IDs we want to predict
+            for chunk_id in pred_series.keys():
 
-            # Load original pre-trained model
-            model_original_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
-                                    f'04_pre-trained_model_scaled.pickle', 'rb')
-            model_for_iterations = pickle.load(model_original_f)
-            model_original_f.close()
+                print(f'\n##############################\nCurrent Chunk ID: {chunk_id}\n##############################\n',
+                      file=sys.stderr)
 
-            # Create empty DataFrame for prediction result
-            # Note: Have to use DataFrame because append() function of TimeSeries do not work
-            final_pred = pd.DataFrame(columns=['Time', 'Value'])
+                # Load original pre-trained model
+                model_original_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
+                                        f'04_pre-trained_model_scaled_window{window_idx}.pickle', 'rb')
+                model_for_iterations = pickle.load(model_original_f)
+                model_original_f.close()
 
-            ########################
-            # Hourly Predict Chunk #
-            ########################
+                # Create empty DataFrame for prediction result
+                # Note: Have to use DataFrame because append() function of TimeSeries do not work
+                final_pred = pd.DataFrame(columns=['Time', 'Value'])
 
-            # Do not iterate whole series-to-predict because of starting length of 12 (first prediction is for time 13)
-            for iteration in range(len(pred_series[chunk_id]) - input_length):
+                ########################
+                # Hourly Predict Chunk #
+                ########################
 
-                print(f'Iteration: {iteration}', file=sys.stderr)
+                # Do not iterate whole series-to-predict because of starting length of 12 (first prediction is for time 13)
+                for iteration in range(len(pred_series[chunk_id]) - input_length):
 
-                # Predict one measurement
-                current_pred = model_for_iterations.predict(
-                    n=output_length,
-                    series=pred_series[chunk_id][:input_length + iteration])
+                    print(f'Iteration: {iteration}', file=sys.stderr)
 
-                # Rescale predicted measurement
-                current_pred = pred_scaler.inverse_transform(current_pred)
+                    # Predict one measurement
+                    current_pred = model_for_iterations.predict(
+                        n=output_length,
+                        series=pred_series[chunk_id][:input_length + iteration])
 
-                # Add intermediate prediction result to DataFrame
-                final_pred = final_pred.append({'Time': current_pred.start_time(),
-                                                'Value': current_pred.first_value()},
-                                               ignore_index=True)
+                    # Rescale predicted measurement
+                    current_pred = pred_scaler.inverse_transform(current_pred)
 
-            # Save final prediction of chunk as pickle file
-            final_pred_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
-                                f'05_prediction_{chunk_id}_scaled.pickle', 'wb')
-            pickle.dump(final_pred, final_pred_f, protocol=pickle.HIGHEST_PROTOCOL)
-            final_pred_f.close()
+                    # Add intermediate prediction result to DataFrame
+                    final_pred = final_pred.append({'Time': current_pred.start_time(),
+                                                    'Value': current_pred.first_value()},
+                                                   ignore_index=True)
 
-            #####################################
-            # Fill Chunk-level Confusion Matrix #
-            #####################################
+                # Save final prediction of chunk as pickle file
+                final_pred_f = open(f'./data/darts/{n_chunks}_chunks/{model_type}/{parameter}/{endogenous_input}/'
+                                    f'05_prediction_{chunk_id}_scaled_window{window_idx}.pickle', 'wb')
+                pickle.dump(final_pred, final_pred_f, protocol=pickle.HIGHEST_PROTOCOL)
+                final_pred_f.close()
 
-            # Extract original chunk
-            original_chunk = resampled[resampled['CHUNK_ID_FILLED_TH'] == chunk_id].sort_values('CHARTTIME')
-            original_chunk = original_chunk[input_length:].reset_index()
+                #####################################
+                # Fill Chunk-level Confusion Matrix #
+                #####################################
 
-            # Add boolean indicating triggered high alarm for original value
-            original_chunk['HIGH_ALARM_TRIGGERED'] = False
-            original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input}_RESAMPLING']
-                               > original_chunk['THRESHOLD_VALUE_HIGH'],
-                               'HIGH_ALARM_TRIGGERED'] = True
+                # Extract original chunk
+                original_chunk = resampled[resampled['CHUNK_ID_FILLED_TH'] == chunk_id].sort_values('CHARTTIME')
+                original_chunk = original_chunk[input_length:].reset_index()
 
-            # Add boolean indicating triggered low alarm original value
-            original_chunk['LOW_ALARM_TRIGGERED'] = False
-            original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input}_RESAMPLING']
-                               < original_chunk['THRESHOLD_VALUE_LOW'],
-                               'LOW_ALARM_TRIGGERED'] = True
+                # Add boolean indicating triggered high alarm for original value
+                original_chunk['HIGH_ALARM_TRIGGERED'] = False
+                original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input}_RESAMPLING']
+                                   > original_chunk['THRESHOLD_VALUE_HIGH'],
+                                   'HIGH_ALARM_TRIGGERED'] = True
 
-            # Add column with predicted value to chunk
-            original_chunk['VALUE_PREDICTION'] = final_pred.Value
+                # Add boolean indicating triggered low alarm original value
+                original_chunk['LOW_ALARM_TRIGGERED'] = False
+                original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input}_RESAMPLING']
+                                   < original_chunk['THRESHOLD_VALUE_LOW'],
+                                   'LOW_ALARM_TRIGGERED'] = True
 
-            # Add boolean indicating triggered high alarm for predicted value
-            original_chunk['HIGH_ALARM_TRIGGERED_PREDICTION'] = False
-            original_chunk.loc[original_chunk['VALUE_PREDICTION']
-                               > original_chunk['THRESHOLD_VALUE_HIGH'],
-                               'HIGH_ALARM_TRIGGERED_PREDICTION'] = True
+                # Add column with predicted value to chunk
+                original_chunk['VALUE_PREDICTION'] = final_pred.Value
 
-            # Add boolean indicating triggered low alarm for predicted value
-            original_chunk['LOW_ALARM_TRIGGERED_PREDICTION'] = False
-            original_chunk.loc[original_chunk['VALUE_PREDICTION']
-                               < original_chunk['THRESHOLD_VALUE_LOW'],
-                               'LOW_ALARM_TRIGGERED_PREDICTION'] = True
+                # Add boolean indicating triggered high alarm for predicted value
+                original_chunk['HIGH_ALARM_TRIGGERED_PREDICTION'] = False
+                original_chunk.loc[original_chunk['VALUE_PREDICTION']
+                                   > original_chunk['THRESHOLD_VALUE_HIGH'],
+                                   'HIGH_ALARM_TRIGGERED_PREDICTION'] = True
 
-            # Get indices where booleans are false or true for high alarms
-            high_triggered = set(original_chunk.index[original_chunk['HIGH_ALARM_TRIGGERED']])
-            high_triggered_pred = set(original_chunk.index[original_chunk['HIGH_ALARM_TRIGGERED_PREDICTION']])
-            high_not_triggered = set(original_chunk.index[~original_chunk['HIGH_ALARM_TRIGGERED']])
-            high_not_triggered_pred = set(original_chunk.index[~original_chunk['HIGH_ALARM_TRIGGERED_PREDICTION']])
+                # Add boolean indicating triggered low alarm for predicted value
+                original_chunk['LOW_ALARM_TRIGGERED_PREDICTION'] = False
+                original_chunk.loc[original_chunk['VALUE_PREDICTION']
+                                   < original_chunk['THRESHOLD_VALUE_LOW'],
+                                   'LOW_ALARM_TRIGGERED_PREDICTION'] = True
 
-            # Get indices where booleans are false or true for low alarms
-            low_triggered = set(original_chunk.index[original_chunk['LOW_ALARM_TRIGGERED']])
-            low_triggered_pred = set(original_chunk.index[original_chunk['LOW_ALARM_TRIGGERED_PREDICTION']])
-            low_not_triggered = set(original_chunk.index[~original_chunk['LOW_ALARM_TRIGGERED']])
-            low_not_triggered_pred = set(original_chunk.index[~original_chunk['LOW_ALARM_TRIGGERED_PREDICTION']])
+                # Get indices where booleans are false or true for high alarms
+                high_triggered = set(original_chunk.index[original_chunk['HIGH_ALARM_TRIGGERED']])
+                high_triggered_pred = set(original_chunk.index[original_chunk['HIGH_ALARM_TRIGGERED_PREDICTION']])
+                high_not_triggered = set(original_chunk.index[~original_chunk['HIGH_ALARM_TRIGGERED']])
+                high_not_triggered_pred = set(original_chunk.index[~original_chunk['HIGH_ALARM_TRIGGERED_PREDICTION']])
 
-            # Fill confusion matrix for high threshold analysis
-            confusion_matrix_chunks = confusion_matrix_chunks.append({
-                'CHUNK_ID': chunk_id,
-                'PARAMETER': parameter.upper(),
-                'MODEL': model_type,
-                'ENDOGENOUS': endogenous_input,
-                'EXOGENOUS': exogenous_input,
-                'FIRST_FORECAST': input_length + output_length,
-                'ALARM_TYPE': 'High',
-                # Following 4 metrics look at how many indices are shared
-                'TP': len(high_triggered.intersection(high_triggered_pred)),
-                'FN': len(high_triggered.intersection(high_not_triggered_pred)),
-                'FP': len(high_not_triggered.intersection(high_triggered_pred)),
-                'TN': len(high_not_triggered.intersection(high_not_triggered_pred)),
-                'N_HIGH_ALARMS': len(high_triggered),
-                'N_LOW_ALARMS': len(low_triggered),
-                'N_ITERATIONS': len(pred_series[chunk_id]) - input_length
-            }, ignore_index=True)
+                # Get indices where booleans are false or true for low alarms
+                low_triggered = set(original_chunk.index[original_chunk['LOW_ALARM_TRIGGERED']])
+                low_triggered_pred = set(original_chunk.index[original_chunk['LOW_ALARM_TRIGGERED_PREDICTION']])
+                low_not_triggered = set(original_chunk.index[~original_chunk['LOW_ALARM_TRIGGERED']])
+                low_not_triggered_pred = set(original_chunk.index[~original_chunk['LOW_ALARM_TRIGGERED_PREDICTION']])
 
-            # Fill confusion matrix for low threshold analysis
-            confusion_matrix_chunks = confusion_matrix_chunks.append({
-                'CHUNK_ID': chunk_id,
-                'PARAMETER': parameter.upper(),
-                'MODEL': model_type,
-                'ENDOGENOUS': endogenous_input,
-                'EXOGENOUS': exogenous_input,
-                'FIRST_FORECAST': input_length + output_length,
-                'ALARM_TYPE': 'Low',
-                # Following 4 metrics look at how many indices are shared
-                'TP': len(low_triggered.intersection(low_triggered_pred)),
-                'FN': len(low_triggered.intersection(low_not_triggered_pred)),
-                'FP': len(low_not_triggered.intersection(low_triggered_pred)),
-                'TN': len(low_not_triggered.intersection(low_not_triggered_pred)),
-                'N_HIGH_ALARMS': len(high_triggered),
-                'N_LOW_ALARMS': len(low_triggered),
-                'N_ITERATIONS': len(pred_series[chunk_id]) - input_length
-            }, ignore_index=True)
+                # Fill confusion matrix for high threshold analysis
+                confusion_matrix_chunks = confusion_matrix_chunks.append({
+                    'CHUNK_ID': chunk_id,
+                    'PARAMETER': parameter.upper(),
+                    'MODEL': model_type,
+                    'ENDOGENOUS': endogenous_input,
+                    'EXOGENOUS': exogenous_input,
+                    'FIRST_FORECAST': input_length + output_length,
+                    'ALARM_TYPE': 'High',
+                    # Following 4 metrics look at how many indices are shared
+                    'TP': len(high_triggered.intersection(high_triggered_pred)),
+                    'FN': len(high_triggered.intersection(high_not_triggered_pred)),
+                    'FP': len(high_not_triggered.intersection(high_triggered_pred)),
+                    'TN': len(high_not_triggered.intersection(high_not_triggered_pred)),
+                    'N_HIGH_ALARMS': len(high_triggered),
+                    'N_LOW_ALARMS': len(low_triggered),
+                    'N_ITERATIONS': len(pred_series[chunk_id]) - input_length
+                }, ignore_index=True)
 
-        # Save chunk-level confusion matrix after all chunks are processed
-        confusion_matrix_chunks_f = open(f'./data/darts/{n_chunks}_chunks/confusion_matrix_chunks_{model_type}_'
-                                         f'{parameter}_{endogenous_input}_scaled.pickle', 'wb')
-        pickle.dump(confusion_matrix_chunks, confusion_matrix_chunks_f, protocol=pickle.HIGHEST_PROTOCOL)
-        confusion_matrix_chunks_f.close()
+                # Fill confusion matrix for low threshold analysis
+                confusion_matrix_chunks = confusion_matrix_chunks.append({
+                    'CHUNK_ID': chunk_id,
+                    'PARAMETER': parameter.upper(),
+                    'MODEL': model_type,
+                    'ENDOGENOUS': endogenous_input,
+                    'EXOGENOUS': exogenous_input,
+                    'FIRST_FORECAST': input_length + output_length,
+                    'ALARM_TYPE': 'Low',
+                    # Following 4 metrics look at how many indices are shared
+                    'TP': len(low_triggered.intersection(low_triggered_pred)),
+                    'FN': len(low_triggered.intersection(low_not_triggered_pred)),
+                    'FP': len(low_not_triggered.intersection(low_triggered_pred)),
+                    'TN': len(low_not_triggered.intersection(low_not_triggered_pred)),
+                    'N_HIGH_ALARMS': len(high_triggered),
+                    'N_LOW_ALARMS': len(low_triggered),
+                    'N_ITERATIONS': len(pred_series[chunk_id]) - input_length
+                }, ignore_index=True)
+
+            # Save chunk-level confusion matrix after all chunks are processed
+            confusion_matrix_chunks_f = open(f'./data/darts/{n_chunks}_chunks/confusion_matrix_chunks_{model_type}_'
+                                             f'{parameter}_{endogenous_input}_scaled_window{window_idx}.pickle', 'wb')
+            pickle.dump(confusion_matrix_chunks, confusion_matrix_chunks_f, protocol=pickle.HIGHEST_PROTOCOL)
+            confusion_matrix_chunks_f.close()
 
         #####################################
         # Fill Model-level Confusion Matrix #
         #####################################
 
+        # Collect chunk-level confusion matrices of all five windows
+        confusion_matrix_chunks_concat = pd.DataFrame(
+            columns=['CHUNK_ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE', 'FP',
+                     'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_ITERATIONS'])
+
+        for file in os.listdir(f'./data/darts/{n_chunks}_chunks/'):
+            if os.path.isfile(os.path.join(f'./data/darts/{n_chunks}_chunks/', file)) and \
+                    file.startswith(f'confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled'):
+
+                current_chunk_matrix_f = open(f'./data/darts/{n_chunks}_chunks/{file}', 'rb')
+                current_chunk_matrix = pickle.load(current_chunk_matrix_f)
+                current_chunk_matrix_f.close()
+
+                confusion_matrix_chunks_concat = pd.concat([confusion_matrix_chunks_concat, current_chunk_matrix])
+
+        confusion_matrix_chunks_concat.reset_index(inplace=True, drop=True)
+
         # Fill model-level confusion matrix per parameter and model type (HIGH alarm forecasting)
-        confusion_matrix_chunks_high = confusion_matrix_chunks[confusion_matrix_chunks['ALARM_TYPE'] == 'High']
+        confusion_matrix_chunks_concat_high = \
+            confusion_matrix_chunks_concat[confusion_matrix_chunks_concat['ALARM_TYPE'] == 'High']
 
         confusion_matrix_models = confusion_matrix_models.append({
             # R = RNNModel, model_number = {01, ..., 09} and H = High
@@ -329,18 +356,19 @@ for model_type in model_types:
             'EXOGENOUS': exogenous_input,
             'FIRST_FORECAST': input_length + output_length,
             'ALARM_TYPE': 'High',
-            'FP': confusion_matrix_chunks_high['FP'].sum(),
-            'TP': confusion_matrix_chunks_high['TP'].sum(),
-            'FN': confusion_matrix_chunks_high['FN'].sum(),
-            'TN': confusion_matrix_chunks_high['TN'].sum(),
-            'N_HIGH_ALARMS': confusion_matrix_chunks_high['N_HIGH_ALARMS'].sum(),
-            'N_LOW_ALARMS': confusion_matrix_chunks_high['N_LOW_ALARMS'].sum(),
-            'N_CHUNKS': len(confusion_matrix_chunks_high),
-            'N_ITERATIONS': confusion_matrix_chunks_high['N_ITERATIONS'].sum()
+            'FP': confusion_matrix_chunks_concat_high['FP'].sum(),
+            'TP': confusion_matrix_chunks_concat_high['TP'].sum(),
+            'FN': confusion_matrix_chunks_concat_high['FN'].sum(),
+            'TN': confusion_matrix_chunks_concat_high['TN'].sum(),
+            'N_HIGH_ALARMS': confusion_matrix_chunks_concat_high['N_HIGH_ALARMS'].sum(),
+            'N_LOW_ALARMS': confusion_matrix_chunks_concat_high['N_LOW_ALARMS'].sum(),
+            'N_CHUNKS': len(confusion_matrix_chunks_concat_high),
+            'N_ITERATIONS': confusion_matrix_chunks_concat_high['N_ITERATIONS'].sum()
         }, ignore_index=True)
 
         # Fill model-level confusion matrix per parameter and model type (LOW alarm forecasting)
-        confusion_matrix_chunks_low = confusion_matrix_chunks[confusion_matrix_chunks['ALARM_TYPE'] == 'Low']
+        confusion_matrix_chunks_concat_low = \
+            confusion_matrix_chunks_concat[confusion_matrix_chunks_concat['ALARM_TYPE'] == 'Low']
 
         confusion_matrix_models = confusion_matrix_models.append({
             # R = RNNModel, model_number = {01, ..., 12} and L = Low
@@ -351,14 +379,14 @@ for model_type in model_types:
             'EXOGENOUS': exogenous_input,
             'FIRST_FORECAST': input_length + output_length,
             'ALARM_TYPE': 'Low',
-            'FP': confusion_matrix_chunks_low['FP'].sum(),
-            'TP': confusion_matrix_chunks_low['TP'].sum(),
-            'FN': confusion_matrix_chunks_low['FN'].sum(),
-            'TN': confusion_matrix_chunks_low['TN'].sum(),
-            'N_HIGH_ALARMS': confusion_matrix_chunks_low['N_HIGH_ALARMS'].sum(),
-            'N_LOW_ALARMS': confusion_matrix_chunks_low['N_LOW_ALARMS'].sum(),
-            'N_CHUNKS': len(confusion_matrix_chunks_low),
-            'N_ITERATIONS': confusion_matrix_chunks_low['N_ITERATIONS'].sum()
+            'FP': confusion_matrix_chunks_concat_low['FP'].sum(),
+            'TP': confusion_matrix_chunks_concat_low['TP'].sum(),
+            'FN': confusion_matrix_chunks_concat_low['FN'].sum(),
+            'TN': confusion_matrix_chunks_concat_low['TN'].sum(),
+            'N_HIGH_ALARMS': confusion_matrix_chunks_concat_low['N_HIGH_ALARMS'].sum(),
+            'N_LOW_ALARMS': confusion_matrix_chunks_concat_low['N_LOW_ALARMS'].sum(),
+            'N_CHUNKS': len(confusion_matrix_chunks_concat_low),
+            'N_ITERATIONS': confusion_matrix_chunks_concat_low['N_ITERATIONS'].sum()
         }, ignore_index=True)
 
 # Save model-level confusion matrix after all model types and parameters are processed
