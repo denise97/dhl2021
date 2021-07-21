@@ -29,7 +29,9 @@ The folder structure is as follows:
 - [**`mimic_prediction_arima`**](./mimic_prediction_arima)
   - Scripts for time series forecasting with *Autoregressive Integrated Moving Average models* (ARIMA) in all variants, i.e. also ARIMAX, for instance.
 - [**`mimic_prediction_rnn`**](./mimic_prediction_rnn)
-  - Scripts for time series forecasting with *RRNModel* by [Darts](https://github.com/unit8co/darts).
+  - Scripts for time series forecasting with [*RNNModel* by Darts](https://unit8co.github.io/darts/generated_api/darts.models.rnn_model.html).
+- [**`mimic_prediction_tcn`**](./mimic_prediction_tcn)
+  - Scripts for time series forecasting with [*TCNModel* by Darts](https://unit8co.github.io/darts/generated_api/darts.models.tcn_model.html).
 - [**`paper_visualizations`**](./paper_visualizations)
   - Scripts for the creation of various plots for Jonas' paper.
 - [**`templates_for_plots`**](./templates_for_plots)
