@@ -13,10 +13,13 @@ from darts import TimeSeries
 from darts.dataprocessing.transformers import Scaler, MissingValuesFiller
 from darts.models import TCNModel
 
+import numpy as np
 import os
 import pandas as pd
 import pickle
 import sys
+import time
+
 
 ####################
 # Adjust Variables #
@@ -53,8 +56,8 @@ confusion_matrix_models = pd.DataFrame(
              'FP', 'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_CHUNKS', 'N_ITERATIONS'])
 
 # Note: Not changeable, see other scripts ending with "covariates" for MAX and MIN
-endogenous_input = 'MEDIAN'
-exogenous_input = 'n/a'
+endogenous_input = 'Median'
+exogenous_input = np.nan
 
 if style == 'all':
     n_windows = 5
@@ -74,6 +77,8 @@ model = TCNModel(input_chunk_length=input_length,
 for parameter in parameters:
     print(f'\n##############################\nCurrent Parameter: {parameter.upper()}\n'
           f'##############################\n', file=sys.stderr)
+
+    start_time = time.time()
 
     # Create sub folder for each parameter
     if not os.path.isdir(f'./data/{approach}/{n_chunks}_chunks/{style}/{parameter}'):
@@ -105,7 +110,7 @@ for parameter in parameters:
             relevant_series[chunk_id] = filler.transform(TimeSeries.from_dataframe(
                 df=current_series,
                 time_col='CHARTTIME',
-                value_cols=[f'VITAL_PARAMTER_VALUE_{endogenous_input}_RESAMPLING'],
+                value_cols=[f'VITAL_PARAMTER_VALUE_{endogenous_input.upper()}_RESAMPLING'],
                 freq='H'))
 
     # Extract all relevant chunk IDs
@@ -117,7 +122,7 @@ for parameter in parameters:
     # Iterate five times different 20% of the chunks (= 5 windows) to predict all chunks
     for window_idx in range(n_windows):
 
-        print(f'{window_idx+1}. window\n', file=sys.stderr)
+        print(f'{window_idx}. window\n', file=sys.stderr)
 
         # Extract 20% of series for prediction and catch last window to avoid ignoring chunks
         if window_idx == 4:
@@ -183,8 +188,8 @@ for parameter in parameters:
         pretrained_model_f.close()
 
         confusion_matrix_chunks = pd.DataFrame(
-            columns=['CHUNK_ID', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE', 'FP',
-                     'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_ITERATIONS', ])
+            columns=['CHUNK_ID', 'SCALED', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST',
+                     'ALARM_TYPE', 'FP', 'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_ITERATIONS'])
 
         # Iterate chunk IDs we want to predict
         for chunk_id in pred_series.keys():
@@ -240,13 +245,13 @@ for parameter in parameters:
 
             # Add boolean indicating triggered high alarm for original value
             original_chunk['HIGH_ALARM_TRIGGERED'] = False
-            original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input}_RESAMPLING']
+            original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input.upper()}_RESAMPLING']
                                > original_chunk['THRESHOLD_VALUE_HIGH'],
                                'HIGH_ALARM_TRIGGERED'] = True
 
             # Add boolean indicating triggered low alarm original value
             original_chunk['LOW_ALARM_TRIGGERED'] = False
-            original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input}_RESAMPLING']
+            original_chunk.loc[original_chunk[f'VITAL_PARAMTER_VALUE_{endogenous_input.upper()}_RESAMPLING']
                                < original_chunk['THRESHOLD_VALUE_LOW'],
                                'LOW_ALARM_TRIGGERED'] = True
 
@@ -280,12 +285,12 @@ for parameter in parameters:
             # Fill confusion matrix for high threshold analysis
             confusion_matrix_chunks = confusion_matrix_chunks.append({
                 'CHUNK_ID': chunk_id,
-                'VERSION': 'scaled',
+                'SCALED': True,
                 'PARAMETER': parameter.upper(),
                 'MODEL': 'TCN',
                 'ENDOGENOUS': endogenous_input,
                 'EXOGENOUS': exogenous_input,
-                'FIRST_FORECAST': input_length + output_length,
+                'FIRST_FORECAST': input_length,
                 'ALARM_TYPE': 'High',
                 # Following 4 metrics look at how many indices are shared
                 'TP': len(high_triggered.intersection(high_triggered_pred)),
@@ -300,12 +305,12 @@ for parameter in parameters:
             # Fill confusion matrix for low threshold analysis
             confusion_matrix_chunks = confusion_matrix_chunks.append({
                 'CHUNK_ID': chunk_id,
-                'VERSION': 'scaled',
+                'SCALED': True,
                 'PARAMETER': parameter.upper(),
                 'MODEL': 'TCN',
                 'ENDOGENOUS': endogenous_input,
                 'EXOGENOUS': exogenous_input,
-                'FIRST_FORECAST': input_length + output_length,
+                'FIRST_FORECAST': input_length,
                 'ALARM_TYPE': 'Low',
                 # Following 4 metrics look at how many indices are shared
                 'TP': len(low_triggered.intersection(low_triggered_pred)),
@@ -344,6 +349,8 @@ for parameter in parameters:
 
     confusion_matrix_chunks_concat.reset_index(inplace=True, drop=True)
 
+    runtime = time.time() - start_time
+
     # Fill model-level confusion matrix per parameter and model type (HIGH alarm forecasting)
     confusion_matrix_chunks_concat_high = \
         confusion_matrix_chunks_concat[confusion_matrix_chunks_concat['ALARM_TYPE'] == 'High']
@@ -351,12 +358,14 @@ for parameter in parameters:
     confusion_matrix_models = confusion_matrix_models.append({
         # T = TCNModel, model_number = {01, ..., 04} and H = High
         'ID': f'{parameter.upper()}_T_03_H',
-        'VERSION': 'scaled',
         'PARAMETER': parameter.upper(),
+        'RUNTIME': runtime,
         'MODEL': 'TCN',
+        'SCALED': True,
+        'LIBRARY': 'darts',
         'ENDOGENOUS': endogenous_input,
         'EXOGENOUS': exogenous_input,
-        'FIRST_FORECAST': input_length + output_length,
+        'FIRST_FORECAST': input_length,
         'ALARM_TYPE': 'High',
         'FP': confusion_matrix_chunks_concat_high['FP'].sum(),
         'TP': confusion_matrix_chunks_concat_high['TP'].sum(),
@@ -375,12 +384,14 @@ for parameter in parameters:
     confusion_matrix_models = confusion_matrix_models.append({
         # T = TCNModel, model_number = {01, ..., 04} and L = Low
         'ID': f'{parameter.upper()}_T_03_L',
-        'VERSION': 'scaled',
         'PARAMETER': parameter.upper(),
+        'RUNTIME': runtime,
         'MODEL': 'TCN',
+        'SCALED': True,
+        'LIBRARY': 'darts',
         'ENDOGENOUS': endogenous_input,
         'EXOGENOUS': exogenous_input,
-        'FIRST_FORECAST': input_length + output_length,
+        'FIRST_FORECAST': input_length,
         'ALARM_TYPE': 'Low',
         'FP': confusion_matrix_chunks_concat_low['FP'].sum(),
         'TP': confusion_matrix_chunks_concat_low['TP'].sum(),
