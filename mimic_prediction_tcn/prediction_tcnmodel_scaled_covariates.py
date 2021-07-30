@@ -3,7 +3,7 @@
 
     This script assumes that there is already the subdirectory '/TCNModel' in the directory '/data'. If you want to
     adjust which input size is taken and what parameters and models are used for the prediction, have a look at the five
-    variables from line 27 to 38.
+    variables from line 28 to 39.
 
     Lastly, you have to install some packages:
     pip3 install u8darts[torch] seaborn
@@ -28,7 +28,7 @@ import time
 # Parameter can be {'hr', 'bp', 'o2'}
 parameters = ['hr', 'bp', 'o2']
 
-# Number of chunks can be 1,000 or 15,000
+# Number of chunks can be 1000, 2000 or 15000
 n_chunks = 1000
 
 # Style can be 'all' or '20_percent'
