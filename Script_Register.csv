@@ -61,7 +61,7 @@ alarm_violations_analysis_MV.ipynb,mimic_alarm_violations_analysis/alarm_violati
 alarm_violations_analysis_NBPs.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_NBPs.ipynb,alarm_violations.csv,,
 alarm_violations_analysis_O2SAT.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_O2SAT.ipynb,alarm_violations.csv,,
 alarm_violations_analysis_RR.ipynb,mimic_alarm_violations_analysis/alarm_violations_analysis_RR.ipynb,alarm_violations.csv,,
-prediction_normal.py,mimic_prediction_rnn/prediction_normal.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
+prediction_rnnmodel_normal.py,mimic_prediction_rnn/prediction_normal.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
 02) 04_pre-trained_model_normal_window{window_idx}.pickle
 03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_normal_window{window_idx}.pickle","01) 01_train_series_normal_window{window_idx}.pickle
 02) 02_pred_series_normal_window{window_idx}.pickle
@@ -69,7 +69,7 @@ prediction_normal.py,mimic_prediction_rnn/prediction_normal.py,"01) resample_out
 04) 05_prediction_{chunk_id}_normal_window{window_idx}.pickle
 05) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_normal_window{window_idx}.pickle
 06) confusion_matrix_models_normal_{endogenous_input}.pickle",RNNModel prediction with median resampled non-scaled chunks as endogenous variables
-prediction_normal_covariates.py,mimic_prediction_rnn/prediction_normal_covariates.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
+prediction_rnnmodel_normal_covariates.py,mimic_prediction_rnn/prediction_normal_covariates.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
 02) 04_pre-trained_model_{alarm_type}_normal_window{window_idx}.pickle
 03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_normal_window{window_idx}.pickle","01) 01_train_series_{endo/exo}[_{alarm_type}]_normal_window{window_idx}.pickle
 02) 02_pred_series_{endo/exo}[_{alarm_type}]_normal_window{window_idx}.pickle
@@ -77,7 +77,7 @@ prediction_normal_covariates.py,mimic_prediction_rnn/prediction_normal_covariate
 04) 05_prediction_{chunk_id}_{alarm_type}_normal_window{window_idx}.pickle
 05) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_normal_window{window_idx}.pickle
 06) confusion_matrix_models_normal_{endogenous_input}.pickle",RNNModel prediction with max and min resampled non-scaled chunks as endogenous variables and median resampled non-scaled chunks as exogenous variables
-prediction_scaled.py,mimic_prediction_rnn/prediction_scaled.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
+prediction_rnnmodel_scaled.py,mimic_prediction_rnn/prediction_scaled.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
 02) 04_pre-trained_model_scaled_window{window_idx}.pickle
 03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}.pickle","01) 01_train_series_scaled_window{window_idx}.pickle
 02) 02_pred_series_scaled_window{window_idx}.pickle
@@ -86,7 +86,7 @@ prediction_scaled.py,mimic_prediction_rnn/prediction_scaled.py,"01) resample_out
 05) 05_prediction_{chunk_id}_scaled_window{window_idx}.pickle
 06) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}.pickle
 07) confusion_matrix_models_scaled_{endogenous_input}.pickle",RNNModel prediction with median resampled scaled chunks as endogenous variables
-prediction_scaled_covariates.py,mimic_prediction_rnn/prediction_scaled_covariates.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
+prediction_rnnmodel_scaled_covariates.py,mimic_prediction_rnn/prediction_scaled_covariates.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
 02) 04_pre-trained_model_{alarm_type}_scaled_window{window_idx}.pickle
 03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}.pickle","01) 01_train_series_{endo/exo}[_{alarm_type}]_scaled_window{window_idx}.pickle
 02) 02_pred_series_{endo/exo}[_{alarm_type}]_scaled_window{window_idx}.pickle
@@ -95,9 +95,7 @@ prediction_scaled_covariates.py,mimic_prediction_rnn/prediction_scaled_covariate
 05) 05_prediction_{chunk_id}_{alarm_type}_scaled_window{window_idx}.pickle
 06) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}.pickle
 07) confusion_matrix_models_scaled_{endogenous_input}.pickle",RNNModel prediction with max and min resampled scaled chunks as endogenous variables and median resampled scaled chunks as exogenous variables
-analysis_models_and_chunks.iypnb,mimic_prediction_rnn/analysis_models_and_chunks.iypnb,"01) confusion_matrix_models_{endogenous_input}.pickle
-02) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_{version}_window{window_idx}.pickle
-03) 05_prediction_{chunk_id_win10}_{version}_window{window_idx}.pickle
-04) resample_output_{parameter}_first{n_chunks}.parquet",result_matrix_models_{version}.parquet,Analysis of model-level and chunk-level confusion matrices
-prediction_single_ICU_stay.iypnb,archive/prediction_single_ICU_stay.iypnb,chartevents_clean.parquet,,Simple approach using LSTM model and only one ICU stay (to test Darts for the first time)
+analysis_predicted_models.iypnb,mimic_prediction_rnn/analysis_predicted_models.iypnb,confusion_matrix_models_{version}_{endogenous_input}.pickle,rnn_model_results_{n_chunks}_{style}.parquet,Analysis and visualization of model-level results
+analysis_predicted_chunks.iypnb,mimic_prediction_rnn/analysis_predicted_chunks.iypnb,"01) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_{version}_window{window_idx}.pickle
+02) resample_output_{parameter}_first{n_chunks}.parquet",,Analysis and visualization of chunk-level results
 ,,,,
