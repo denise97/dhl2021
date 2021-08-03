@@ -156,16 +156,17 @@ for model_type in model_types:
                             if chunk_id not in list(pred_series.keys())}
 
             # Define and fit scalers for training and prediction set
-            train_scaler, pred_scaler = Scaler(), Scaler()
-            train_scaler = train_scaler.fit(list(train_series.values()))
-            pred_scaler = pred_scaler.fit(list(pred_series.values()))
+            pred_scalers = dict()
 
             # Normalize values
             for chunk_id in train_series.keys():
-                train_series[chunk_id] = train_scaler.transform(train_series[chunk_id])
+                current_scaler = Scaler()
+                train_series[chunk_id] = current_scaler.fit_transform(train_series[chunk_id])
 
             for chunk_id in pred_series.keys():
-                pred_series[chunk_id] = pred_scaler.transform(pred_series[chunk_id])
+                current_scaler = Scaler()
+                pred_series[chunk_id] = current_scaler.fit_transform(pred_series[chunk_id])
+                pred_scalers[chunk_id] = current_scaler
 
             print(f'#Chunks for training: {len(train_series)}', file=sys.stderr)
             print(f'#Chunks for prediction: {len(pred_series)}', file=sys.stderr)
@@ -182,11 +183,11 @@ for model_type in model_types:
             pickle.dump(pred_series, pred_series_f, protocol=pickle.HIGHEST_PROTOCOL)
             pred_series_f.close()
 
-            # Save scaler for chunks to predict as pickle file
-            pred_scaler_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/{model_type}/{parameter}/'
-                                 f'{endogenous_input}/03_pred_scaler_window{window_idx}.pickle', 'wb')
-            pickle.dump(pred_scaler, pred_scaler_f, protocol=pickle.HIGHEST_PROTOCOL)
-            pred_scaler_f.close()
+            # Save scalers for chunks to predict as pickle file
+            pred_scalers_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/{model_type}/{parameter}/'
+                                 f'{endogenous_input}/03_pred_scalers_window{window_idx}.pickle', 'wb')
+            pickle.dump(pred_scalers, pred_scalers_f, protocol=pickle.HIGHEST_PROTOCOL)
+            pred_scalers_f.close()
 
             ###################
             # Pre-train Model #
@@ -241,7 +242,7 @@ for model_type in model_types:
                         series=pred_series[chunk_id][:input_length + iteration])
 
                     # Rescale predicted measurement
-                    current_pred = pred_scaler.inverse_transform(current_pred)
+                    current_pred = pred_scalers[chunk_id].inverse_transform(current_pred)
 
                     # Add intermediate prediction result to DataFrame
                     final_pred = final_pred.append({'Time': current_pred.start_time(),

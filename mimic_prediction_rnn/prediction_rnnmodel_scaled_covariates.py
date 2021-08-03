@@ -183,24 +183,30 @@ for model_type in model_types:
                                 if chunk_id not in list(pred_series_exo.keys())}
 
             # Define and fit scalers for training and prediction set
-            train_scaler, pred_scaler = Scaler(), Scaler()
-
-            # Fit both scalers
-            train_scaler = train_scaler.fit(list(train_series_endo_high.values()), list(train_series_endo_low.values()),
-                                            list(train_series_exo.values()))
-            pred_scaler = pred_scaler.fit(list(pred_series_endo_high.values()), list(pred_series_endo_low.values()),
-                                          list(pred_series_exo.values()))
+            pred_scalers_high, pred_scalers_low = dict(), dict()
 
             # Normalize values
             for chunk_id in train_series_endo_high.keys():
-                train_series_endo_high[chunk_id] = train_scaler.transform(train_series_endo_high[chunk_id])
-                train_series_endo_low[chunk_id] = train_scaler.transform(train_series_endo_low[chunk_id])
-                train_series_exo[chunk_id] = train_scaler.transform(train_series_exo[chunk_id])
+                current_scaler_endo_high = Scaler()
+                train_series_endo_high[chunk_id] = current_scaler_endo_high.fit_transform(train_series_endo_high[chunk_id])
+
+                current_scaler_endo_low = Scaler()
+                train_series_endo_low[chunk_id] = current_scaler_endo_low.fit_transform(train_series_endo_low[chunk_id])
+
+                current_scaler_exo = Scaler()
+                train_series_exo[chunk_id] = current_scaler_exo.fit_transform(train_series_exo[chunk_id])
 
             for chunk_id in pred_series_endo_high.keys():
-                pred_series_endo_high[chunk_id] = pred_scaler.transform(pred_series_endo_high[chunk_id])
-                pred_series_endo_low[chunk_id] = pred_scaler.transform(pred_series_endo_low[chunk_id])
-                pred_series_exo[chunk_id] = pred_scaler.transform(pred_series_exo[chunk_id])
+                current_scaler_endo_high = Scaler()
+                pred_series_endo_high[chunk_id] = current_scaler_endo_high.fit_transform(pred_series_endo_high[chunk_id])
+                pred_scalers_high[chunk_id] = current_scaler_endo_high
+
+                current_scaler_endo_low = Scaler()
+                pred_series_endo_low[chunk_id] = current_scaler_endo_low.fit_transform(pred_series_endo_low[chunk_id])
+                pred_scalers_low[chunk_id] = current_scaler_endo_low
+
+                current_scaler_exo = Scaler()
+                pred_series_exo[chunk_id] = current_scaler_exo.fit_transform(pred_series_exo[chunk_id])
 
             # Note: dicts with training and prediction chunks of other series have the same lengths
             print(f'#Chunks for training: {len(train_series_endo_high)}', file=sys.stderr)
@@ -244,11 +250,16 @@ for model_type in model_types:
             pickle.dump(pred_series_exo, pred_series_exo_f, protocol=pickle.HIGHEST_PROTOCOL)
             pred_series_exo_f.close()
 
-            # Save scaler for chunks to predict as pickle file
-            pred_scaler_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/{model_type}/{parameter}/'
-                                 f'{endogenous_input}/03_pred_scaler_window{window_idx}.pickle', 'wb')
-            pickle.dump(pred_scaler, pred_scaler_f, protocol=pickle.HIGHEST_PROTOCOL)
-            pred_scaler_f.close()
+            # Save scalers for chunks to predict as pickle file
+            pred_scalers_high_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/{model_type}/{parameter}/'
+                                 f'{endogenous_input}/03_pred_scalers_high_window{window_idx}.pickle', 'wb')
+            pickle.dump(pred_scalers_high, pred_scalers_high_f, protocol=pickle.HIGHEST_PROTOCOL)
+            pred_scalers_high_f.close()
+
+            pred_scalers_low_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/{model_type}/{parameter}/'
+                                 f'{endogenous_input}/03_pred_scalers_low_window{window_idx}.pickle', 'wb')
+            pickle.dump(pred_scalers_low, pred_scalers_low_f, protocol=pickle.HIGHEST_PROTOCOL)
+            pred_scalers_low_f.close()
 
             ###################
             # Pre-train Model #
@@ -323,7 +334,7 @@ for model_type in model_types:
                         covariates=pred_series_exo[chunk_id][:input_length + iteration])
 
                     # Rescale predicted measurement
-                    current_pred_high = pred_scaler.inverse_transform(current_pred_high)
+                    current_pred_high = pred_scalers_high[chunk_id].inverse_transform(current_pred_high)
 
                     # Add intermediate prediction result to DataFrame
                     final_pred_high = final_pred_high.append({'Time': current_pred_high.start_time(),
@@ -366,7 +377,7 @@ for model_type in model_types:
                         covariates=pred_series_exo[chunk_id][:input_length + iteration])
 
                     # Rescale predicted measurement
-                    current_pred_low = pred_scaler.inverse_transform(current_pred_low)
+                    current_pred_low = pred_scalers_low[chunk_id].inverse_transform(current_pred_low)
 
                     # Add intermediate prediction result to DataFrame
                     final_pred_low = final_pred_low.append({'Time': current_pred_low.start_time(),
