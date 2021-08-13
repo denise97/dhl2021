@@ -1,5 +1,5 @@
 """
-    PREDICTION WITH ALL RNN MODELS, ALL PARAMETERS, AND MEDIAN RESAMPLED CHUNKS WHICH ARE SCALED
+    PREDICTION WITH ALL RNN MODELS, ALL PARAMETERS, AND MEDIAN RESAMPLED CHUNKS WHICH ARE MIN-MAX-SCALED
 
     This script assumes that there is already the subdirectory '/RNNModel' in the directory '/data'. If you want to
     adjust which input size is taken and what parameters and models are used for the prediction, have a look at the six
@@ -32,7 +32,7 @@ model_types = ['RNN', 'LSTM', 'GRU']
 parameters = ['hr', 'bp', 'o2']
 
 # Number of chunks can be 1000, 2000 or 15000
-n_chunks = 1000
+n_chunks = 2000
 
 # Style can be 'all' or '20_percent'
 style = 'all'
@@ -90,7 +90,7 @@ for model_type in model_types:
     model = RNNModel(model=model_type,
                      input_chunk_length=input_length,
                      output_chunk_length=output_length,
-                     batch_size=input_length)  # batch_size must be <= input_length (current bug in Darts)
+                     batch_size=input_length)  # batch_size must be <= input_length (bug fixed in Darts version 0.9.0)
 
     for parameter in parameters:
         print(f'\n##############################\nCurrent Parameter: {parameter.upper()}\n'
@@ -202,7 +202,7 @@ for model_type in model_types:
 
             # Save pre-trained model as pickle file
             pretrained_model_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/{model_type}/{parameter}/'
-                                      f'{endogenous_input}/04_pre-trained_model_scaled_window{window_idx}.pickle', 'wb')
+                                      f'{endogenous_input}/04_pre-trained_model_scaled_v2_window{window_idx}.pickle', 'wb')
             pickle.dump(param_model, pretrained_model_f, protocol=pickle.HIGHEST_PROTOCOL)
             pretrained_model_f.close()
 
@@ -218,7 +218,7 @@ for model_type in model_types:
 
                 # Load original pre-trained model
                 model_original_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/{model_type}/{parameter}/'
-                                        f'{endogenous_input}/04_pre-trained_model_scaled_window{window_idx}.pickle',
+                                        f'{endogenous_input}/04_pre-trained_model_scaled_v2_window{window_idx}.pickle',
                                         'rb')
                 model_for_iterations = pickle.load(model_original_f)
                 model_original_f.close()
@@ -251,7 +251,7 @@ for model_type in model_types:
 
                 # Save final prediction of chunk as pickle file
                 final_pred_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/{model_type}/{parameter}/'
-                                    f'{endogenous_input}/05_prediction_{chunk_id}_scaled_window{window_idx}.pickle',
+                                    f'{endogenous_input}/05_prediction_{chunk_id}_scaled_v2_window{window_idx}.pickle',
                                     'wb')
                 pickle.dump(final_pred, final_pred_f, protocol=pickle.HIGHEST_PROTOCOL)
                 final_pred_f.close()
@@ -346,7 +346,7 @@ for model_type in model_types:
             # Save chunk-level confusion matrix after all chunks are processed
             confusion_matrix_chunks_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/confusion_matrix_chunks_'
                                              f'{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}'
-                                             f'.pickle', 'wb')
+                                             f'_v2.pickle', 'wb')
             pickle.dump(confusion_matrix_chunks, confusion_matrix_chunks_f, protocol=pickle.HIGHEST_PROTOCOL)
             confusion_matrix_chunks_f.close()
 
@@ -361,7 +361,8 @@ for model_type in model_types:
 
         for file in os.listdir(f'./data/{approach}/{n_chunks}_chunks/{style}/'):
             if os.path.isfile(os.path.join(f'./data/{approach}/{n_chunks}_chunks/{style}/', file)) and \
-                    file.startswith(f'confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled'):
+                    file.startswith(f'confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled') and \
+                    file.endswith('_v2'):
 
                 current_chunk_matrix_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/{file}', 'rb')
                 current_chunk_matrix = pickle.load(current_chunk_matrix_f)
@@ -379,7 +380,7 @@ for model_type in model_types:
 
         confusion_matrix_models = confusion_matrix_models.append({
             # R = RNNModel, model_number = {01, ..., 09} and H = High
-            'ID': f'{parameter.upper()}_R_{model_numbers[model_type, endogenous_input]}_H',
+            'ID': f'{parameter.upper()}_R_{model_numbers[model_type, endogenous_input]}_H_v2',
             'PARAMETER': parameter.upper(),
             'RUNTIME': runtime,
             'MODEL': model_type,
@@ -405,7 +406,7 @@ for model_type in model_types:
 
         confusion_matrix_models = confusion_matrix_models.append({
             # R = RNNModel, model_number = {01, ..., 12} and L = Low
-            'ID': f'{parameter.upper()}_R_{model_numbers[model_type, endogenous_input]}_L',
+            'ID': f'{parameter.upper()}_R_{model_numbers[model_type, endogenous_input]}_L_v2',
             'PARAMETER': parameter.upper(),
             'RUNTIME': runtime,
             'MODEL': model_type,
@@ -428,7 +429,7 @@ for model_type in model_types:
 # Save model-level confusion matrix after all model types and parameters are processed
 # Note: adjust path name if you want to execute this script in parallel with different parameters/ model types
 confusion_matrix_models_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/confusion_matrix_models_scaled_'
-                                 f'{endogenous_input}.pickle', 'wb')
+                                 f'{endogenous_input}_v2.pickle', 'wb')
 pickle.dump(confusion_matrix_models, confusion_matrix_models_f, protocol=pickle.HIGHEST_PROTOCOL)
 confusion_matrix_models_f.close()
 

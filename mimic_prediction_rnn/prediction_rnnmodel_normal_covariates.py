@@ -1,9 +1,10 @@
 """
     PREDICTION WITH ALL RNN MODELS, ALL PARAMETERS, AND MAX AND MIN RESAMPLED CHUNKS
+    (MEDIAN RESAMPLED CHUNKS ARE USED AS COVARIATES)
 
     This script assumes that there is already the subdirectory '/RNNModel' in the directory '/data'. If you want to
     adjust which input size is taken and what parameters and models are used for the prediction, have a look at the six
-    variables from line 28 to 42.
+    variables from line 29 to 43.
 
     Lastly, you have to install some packages:
     pip3 install u8darts[torch] seaborn
@@ -32,7 +33,7 @@ model_types = ['RNN', 'LSTM', 'GRU']
 parameters = ['hr', 'bp', 'o2']
 
 # Number of chunks can be 1000, 2000 or 15000
-n_chunks = 1000
+n_chunks = 2000
 
 # Style can be 'all' or '20_percent'
 style = 'all'
@@ -91,7 +92,7 @@ for model_type in model_types:
     model = RNNModel(model=model_type,
                      input_chunk_length=input_length,
                      output_chunk_length=output_length,
-                     batch_size=input_length)  # batch_size must be <= input_length (current bug in Darts)
+                     batch_size=input_length)  # batch_size must be <= input_length (bug fixed in Darts version 0.9.0)
 
     for parameter in parameters:
         print(f'\n##############################\nCurrent Parameter: {parameter.upper()}\n'

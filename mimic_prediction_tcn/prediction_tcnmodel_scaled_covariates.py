@@ -1,9 +1,10 @@
 """
     PREDICTION WITH TCN MODEL, ALL PARAMETERS, AND MAX AND MIN RESAMPLED CHUNKS WHICH ARE SCALED
+    (MEDIAN RESAMPLED CHUNKS ARE USED AS COVARIATES)
 
     This script assumes that there is already the subdirectory '/TCNModel' in the directory '/data'. If you want to
     adjust which input size is taken and what parameters and models are used for the prediction, have a look at the five
-    variables from line 28 to 39.
+    variables from line 29 to 40.
 
     Lastly, you have to install some packages:
     pip3 install u8darts[torch] seaborn
@@ -73,7 +74,7 @@ filler = MissingValuesFiller()
 # Create model
 model = TCNModel(input_chunk_length=input_length,
                  output_chunk_length=output_length,
-                 batch_size=input_length)  # batch_size must be <= input_length (current bug in Darts)
+                 batch_size=input_length)  # batch_size must be <= input_length (bug fixed in Darts version 0.9.0)
 
 for parameter in parameters:
     print(f'\n##############################\nCurrent Parameter: {parameter.upper()}\n'

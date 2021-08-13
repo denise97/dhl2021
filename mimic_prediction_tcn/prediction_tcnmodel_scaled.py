@@ -72,7 +72,7 @@ filler = MissingValuesFiller()
 # Create model
 model = TCNModel(input_chunk_length=input_length,
                  output_chunk_length=output_length,
-                 batch_size=input_length)  # batch_size must be <= input_length (current bug in Darts)
+                 batch_size=input_length)  # batch_size must be <= input_length (bug fixed in Darts version 0.9.0)
 
 for parameter in parameters:
     print(f'\n##############################\nCurrent Parameter: {parameter.upper()}\n'
