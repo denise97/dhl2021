@@ -1,10 +1,8 @@
 """
     This is an adapted version of alarm_table_generation.ipynb by Jonas Chromik
-    (https://gitlab.hpi.de/jonas.chromik/mimic-alarms).
+    (https://gitlab.hpi.de/jonas.chromik/mimic-alarms) that generates a CSV containing the alarm data.
 
-    To execute this script on server in `MPSS2021BA1`, the files `chartevents_clean.parquet` respectively
-    `chartevents_clean_values_and_thresholds_with_chunkid_65.parquet` and `unique_icustays_in_chartevents_subset.parquet`
-    have to be in the subdirectory `/data`.
+    To execute this script, a parquet file containing the cleaned CHARTEVENTS table must be available as the input.
 
     Afterwards, you can run the following command to install all needed modules:
         pip3 install pandas pyarrow tqdm
@@ -81,18 +79,19 @@ def _alarms(stayevents, param):
 
 
 if __name__ == "__main__":
-    # Add custom help message and optional script parameter "--chunks"
+    # Add custom help message and script parameters for in- and output files
     parser = ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
-    parser.add_argument("--chunks", action="store_true", help="execute with chunked version of cleaned chartevents")
+    parser.add_argument("-c", "--chartevents-path",
+                        required=True,
+                        help="path to cleaned CHARTEVENTS parquet file (input)")
+    parser.add_argument("-a", "--alarm-data-path",
+                        required=True,
+                        help="path to folder where alarm data CSV will be stored (output)")
     args = parser.parse_args()
 
-    # Define input path and filename of resulting CSV, depending on script parameter "--chunks"
-    if args.chunks:
-        PATH = './data/chartevents_clean_values_and_thresholds_with_chunkid_65.parquet'
-        FILENAME = './data/alarms/alarm_data_with_chunks_65.csv'
-    else:
-        PATH = './data/chartevents_clean.parquet'
-        FILENAME = './data/alarms/alarm_data.csv'
+    # Define input path and filename of resulting CSV
+    CHARTEVENTS_PATH = args.chartevents_path
+    ALARM_DATA_PATH = args.alarm_data_path + '/alarm_data.csv'
 
     # Define columns to include into alarm data generation
     COLS = ['ROW_ID', 'ICUSTAY_ID', 'ITEMID', 'CHARTTIME', 'VALUENUM_CLEAN', 'VALUEUOM']
@@ -105,18 +104,18 @@ if __name__ == "__main__":
         'THRESHOLD_LOW':    [220047,    223752,     223770]})
 
     # Read and prepare cleaned chart events
-    chartevents_clean = pd.read_parquet(PATH, engine='pyarrow')
+    chartevents_clean = pd.read_parquet(CHARTEVENTS_PATH, engine='pyarrow')
     chartevents_clean.CHARTTIME = pd.to_datetime(chartevents_clean.CHARTTIME)
     chartevents_clean = chartevents_clean.sort_values('CHARTTIME')
     chartevents_clean = chartevents_clean[chartevents_clean['VALUENUM_CLEAN'].notna()]
 
-    # Read unique ICU stays
-    icustays = pd.read_parquet('./data/unique_icustays_in_chartevents_subset.parquet', engine='pyarrow')
+    # Get unique ICU stays
+    unique_icu_stays = pd.unique(chartevents_clean.ICUSTAY_ID)
 
     # Create alarm data
     alarms = pd.DataFrame([])
     with Pool(cpu_count()) as p:
-        alarms = pd.concat(tqdm(p.imap(alarms_for, icustays.ICUSTAY_ID), total=len(icustays), smoothing=0))
+        alarms = pd.concat(tqdm(p.imap(alarms_for, unique_icu_stays), total=len(unique_icu_stays), smoothing=0))
 
     # Write CSV
-    alarms.to_csv(FILENAME, index=False)
+    alarms.to_csv(ALARM_DATA_PATH, index=False)
