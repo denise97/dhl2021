@@ -55,18 +55,12 @@ if not os.path.isdir(f'./data/{approach}/{n_chunks}_chunks/{style}'):
 
 # Create model-level confusion matrix
 confusion_matrix_models = pd.DataFrame(
-    columns=['ID', 'PARAMETER', 'RUNTIME', 'MODEL', 'SCALED', 'LIBRARY', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE',
+    columns=['ID', 'PARAMETER', 'RUNTIME', 'MODEL', 'SCALING', 'LIBRARY', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST', 'ALARM_TYPE',
              'FP', 'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_CHUNKS', 'N_ITERATIONS'])
 
 # Note: Not changeable, see other scripts ending with "covariates" for MAX and MIN
 endogenous_input = 'Median'
 exogenous_input = np.nan
-
-model_numbers = {
-    ('RNN',     'Median'):  '07',
-    ('LSTM',    'Median'):  '09',
-    ('GRU',     'Median'):  '11'
-}
 
 if style == 'all':
     n_windows = 5
@@ -188,7 +182,7 @@ for model_type in model_types:
             pretrained_model_f.close()
 
             confusion_matrix_chunks = pd.DataFrame(
-                columns=['CHUNK_ID', 'SCALED', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST',
+                columns=['CHUNK_ID', 'SCALING', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST',
                          'ALARM_TYPE', 'FP', 'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_ITERATIONS'])
 
             # Iterate chunk IDs we want to predict
@@ -284,7 +278,7 @@ for model_type in model_types:
                 # Fill confusion matrix for high threshold analysis
                 confusion_matrix_chunks = confusion_matrix_chunks.append({
                     'CHUNK_ID': chunk_id,
-                    'SCALED': False,
+                    'SCALING': np.nan,
                     'PARAMETER': parameter.upper(),
                     'MODEL': model_type,
                     'ENDOGENOUS': endogenous_input,
@@ -304,7 +298,7 @@ for model_type in model_types:
                 # Fill confusion matrix for low threshold analysis
                 confusion_matrix_chunks = confusion_matrix_chunks.append({
                     'CHUNK_ID': chunk_id,
-                    'SCALED': False,
+                    'SCALING': np.nan,
                     'PARAMETER': parameter.upper(),
                     'MODEL': model_type,
                     'ENDOGENOUS': endogenous_input,
@@ -356,12 +350,15 @@ for model_type in model_types:
             confusion_matrix_chunks_concat[confusion_matrix_chunks_concat['ALARM_TYPE'] == 'High']
 
         confusion_matrix_models = confusion_matrix_models.append({
-            # R = RNNModel, model_number = {01, ..., 12} and H = High
-            'ID': f'{parameter.upper()}_R_{model_numbers[model_type, endogenous_input]}_H',
+            # RN = Vanilla RNN, LS = LSTM, GR = GRU
+            # 01 = model without covariates
+            # n = not scaled
+            # H = High
+            'ID': f'{parameter.upper()}_{model_type[:2]}_01_n_H',
             'PARAMETER': parameter.upper(),
             'RUNTIME': runtime,
             'MODEL': model_type,
-            'SCALED': False,
+            'SCALING': np.nan,
             'LIBRARY': 'darts',
             'ENDOGENOUS': endogenous_input,
             'EXOGENOUS': exogenous_input,
@@ -382,12 +379,15 @@ for model_type in model_types:
             confusion_matrix_chunks_concat[confusion_matrix_chunks_concat['ALARM_TYPE'] == 'Low']
 
         confusion_matrix_models = confusion_matrix_models.append({
-            # R = RNNModel, model_number = {01, ..., 12} and L = Low
-            'ID': f'{parameter.upper()}_R_{model_numbers[model_type, endogenous_input]}_L',
+            # RN = Vanilla RNN, LS = LSTM, GR = GRU
+            # 01 = model without covariates
+            # n = not scaled
+            # L = Low
+            'ID': f'{parameter.upper()}_{model_type[:2]}_01_n_L',
             'PARAMETER': parameter.upper(),
             'RUNTIME': runtime,
             'MODEL': model_type,
-            'SCALED': False,
+            'SCALING': np.nan,
             'LIBRARY': 'darts',
             'ENDOGENOUS': endogenous_input,
             'EXOGENOUS': exogenous_input,
@@ -406,7 +406,7 @@ for model_type in model_types:
 # Save model-level confusion matrix after all model types and parameters are processed
 # Note: adjust path name if you want to execute this script in parallel with different parameters/ model types
 confusion_matrix_models_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/confusion_matrix_models_normal_'
-                                 f'{endogenous_input}.pickle', 'wb')
+                                 f'{endogenous_input}_n.pickle', 'wb')
 pickle.dump(confusion_matrix_models, confusion_matrix_models_f, protocol=pickle.HIGHEST_PROTOCOL)
 confusion_matrix_models_f.close()
 

@@ -77,42 +77,42 @@ prediction_rnnmodel_normal_covariates.py,mimic_prediction_rnn/prediction_normal_
 04) 05_prediction_{chunk_id}_{alarm_type}_normal_window{window_idx}.pickle
 05) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_normal_window{window_idx}.pickle
 06) confusion_matrix_models_normal_{endogenous_input}.pickle",RNNModel prediction with max and min resampled non-scaled chunks as endogenous variables and median resampled non-scaled chunks as exogenous variables
-prediction_rnnmodel_scaled_v1.py,mimic_prediction_rnn/prediction_scaled_v1.py,"01) means_z_scaling-pickle
+prediction_rnnmodel_scaled_s1.py,mimic_prediction_rnn/prediction_scaled_s1.py,"01) means_z_scaling-pickle
 02) stds_z_scaling.pickle
 03) {parameter}_{window_idx}_{train/pred}_median.pickle
-04) 04_pre-trained_model_scaled_v1_window{window_idx}.pickle
+04) 04_pre-trained_model_scaled_s1_window{window_idx}.pickle
 05) resample_output_{parameter}_first{n_chunks}.parquet
-06) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_v1.pickle","01) 04_pre-trained_model_scaled_v1_window{window_idx}.pickle
-02) 05_prediction_{chunk_id}_scaled_v1_window{window_idx}.pickle
-03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_v1.pickle
-04) confusion_matrix_models_scaled_{endogenous_input}_v1.pickle",RNNModel prediction with median resampled z-scaled chunks as endogenous variables
-prediction_rnnmodel_scaled_covariates_v1.py,mimic_prediction_rnn/prediction_scaled_covariates_v1.py,"01) means_z_scaling-pickle
+06) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_s1.pickle","01) 04_pre-trained_model_scaled_s1_window{window_idx}.pickle
+02) 05_prediction_{chunk_id}_scaled_s1_window{window_idx}.pickle
+03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_s1.pickle
+04) confusion_matrix_models_scaled_{endogenous_input}_s1.pickle",RNNModel prediction with median resampled z-scaled chunks as endogenous variables
+prediction_rnnmodel_scaled_covariates_s1.py,mimic_prediction_rnn/prediction_scaled_covariates_s1.py,"01) means_z_scaling-pickle
 02) stds_z_scaling.pickle
 03) {parameter}_{window_idx}_{train/pred}_{median/min/max}.pickle
-04) 04_pre-trained_model_{high/low}_scaled_v1_window{window_idx}.pickle
+04) 04_pre-trained_model_{high/low}_scaled_s1_window{window_idx}.pickle
 05) resample_output_{parameter}_first{n_chunks}.parquet
-06) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_v1.pickle","01) 04_pre-trained_model_{high/low}_scaled_v1_window{window_idx}.pickle
-02) 05_prediction_{chunk_id}_{high/low}_scaled_v1_window{window_idx}.pickle
-03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_v1.pickle
-04) confusion_matrix_models_scaled_{endogenous_input}_v1.pickle",RNNModel prediction with max and min resampled z-scaled chunks as endogenous variables and median resampled scaled chunks as exogenous variables
-prediction_rnnmodel_scaled_v2.py,mimic_prediction_rnn/prediction_scaled_v2.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
-02) 04_pre-trained_model_scaled_v2_window{window_idx}.pickle
-03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_v2.pickle","01) 01_train_series_scaled_window{window_idx}.pickle
+06) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_s1.pickle","01) 04_pre-trained_model_{high/low}_scaled_s1_window{window_idx}.pickle
+02) 05_prediction_{chunk_id}_{high/low}_scaled_s1_window{window_idx}.pickle
+03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_s1.pickle
+04) confusion_matrix_models_scaled_{endogenous_input}_s1.pickle",RNNModel prediction with max and min resampled z-scaled chunks as endogenous variables and median resampled scaled chunks as exogenous variables
+prediction_rnnmodel_scaled_s2.py,mimic_prediction_rnn/prediction_scaled_s2.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
+02) 04_pre-trained_model_scaled_s2_window{window_idx}.pickle
+03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_s2.pickle","01) 01_train_series_scaled_window{window_idx}.pickle
 02) 02_pred_series_scaled_window{window_idx}.pickle
 03) 03_pred_scaler_window{window_idx}.pickle
-04) 04_pre-trained_model_scaled_v2_window{window_idx}.pickle
-05) 05_prediction_{chunk_id}_scaled_v2_window{window_idx}.pickle
-06) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_v2.pickle
-07) confusion_matrix_models_scaled_{endogenous_input}_v2.pickle",RNNModel prediction with median resampled min-max-scaled chunks as endogenous variables
-prediction_rnnmodel_scaled_covariates_v2.py,mimic_prediction_rnn/prediction_scaled_covariates_v2.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
-02) 04_pre-trained_model_{alarm_type}_scaled_v2_window{window_idx}.pickle
-03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_v2.pickle","01) 01_train_series_{endo/exo}[_{alarm_type}]_scaled_window{window_idx}.pickle
+04) 04_pre-trained_model_scaled_s2_window{window_idx}.pickle
+05) 05_prediction_{chunk_id}_scaled_s2_window{window_idx}.pickle
+06) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_s2.pickle
+07) confusion_matrix_models_scaled_{endogenous_input}_s2.pickle",RNNModel prediction with median resampled min-max-scaled chunks as endogenous variables
+prediction_rnnmodel_scaled_covariates_s2.py,mimic_prediction_rnn/prediction_scaled_covariates_s2.py,"01) resample_output_{parameter}_first{n_chunks}.parquet
+02) 04_pre-trained_model_{alarm_type}_scaled_s2_window{window_idx}.pickle
+03) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_s2.pickle","01) 01_train_series_{endo/exo}[_{alarm_type}]_scaled_window{window_idx}.pickle
 02) 02_pred_series_{endo/exo}[_{alarm_type}]_scaled_window{window_idx}.pickle
 03) 03_pred_scaler_window{window_idx}.pickle
-04) 04_pre-trained_model_{alarm_type}_scaled_v2_window{window_idx}.pickle
-05) 05_prediction_{chunk_id}_{alarm_type}_scaled_v2_window{window_idx}.pickle
-06) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_v2.pickle
-07) confusion_matrix_models_scaled_{endogenous_input}_v2.pickle",RNNModel prediction with max and min resampled min-maxscaled chunks as endogenous variables and median resampled scaled chunks as exogenous variables
-analyze_model_level_predictions.iypnb,mimic_prediction_rnn/analyze_model_level_predictions.iypnb,confusion_matrix_models_{version}_{endogenous_input}_v2.pickle,rnn_model_results_{n_chunks}_{style}.parquet,Analysis and visualization of model-level results
-analyze_chunk_level_predictions.iypnb,mimic_prediction_rnn/analyze_chunk_level_predictions.iypnb,"01) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_{version}_window{window_idx}_v2.pickle
+04) 04_pre-trained_model_{alarm_type}_scaled_s2_window{window_idx}.pickle
+05) 05_prediction_{chunk_id}_{alarm_type}_scaled_s2_window{window_idx}.pickle
+06) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_scaled_window{window_idx}_s2.pickle
+07) confusion_matrix_models_scaled_{endogenous_input}_s2.pickle",RNNModel prediction with max and min resampled min-maxscaled chunks as endogenous variables and median resampled scaled chunks as exogenous variables
+analyze_model_level_predictions.iypnb,mimic_prediction_rnn/analyze_model_level_predictions.iypnb,confusion_matrix_models_{version}_{endogenous_input}_s2.pickle,rnn_model_results_{n_chunks}_{style}.parquet,Analysis and visualization of model-level results
+analyze_chunk_level_predictions.iypnb,mimic_prediction_rnn/analyze_chunk_level_predictions.iypnb,"01) confusion_matrix_chunks_{model_type}_{parameter}_{endogenous_input}_{version}_window{window_idx}_s2.pickle
 02) resample_output_{parameter}_first{n_chunks}.parquet",,Analysis and visualization of chunk-level results

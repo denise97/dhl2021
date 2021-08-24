@@ -1,5 +1,5 @@
 """
-    PREDICTION WITH TCN MODEL, ALL PARAMETERS, AND MEDIAN RESAMPLED CHUNKS WHICH ARE SCALED
+    PREDICTION WITH TCN MODEL, ALL PARAMETERS, AND MEDIAN RESAMPLED CHUNKS WHICH ARE MIN-MAX SCALED
 
     This script assumes that there is already the subdirectory '/TCNModel' in the directory '/data'. If you want to
     adjust which input size is taken and what parameters and models are used for the prediction, have a look at the five
@@ -189,7 +189,7 @@ for parameter in parameters:
         pretrained_model_f.close()
 
         confusion_matrix_chunks = pd.DataFrame(
-            columns=['CHUNK_ID', 'SCALED', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST',
+            columns=['CHUNK_ID', 'SCALING', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST',
                      'ALARM_TYPE', 'FP', 'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_ITERATIONS'])
 
         # Iterate chunk IDs we want to predict
@@ -286,7 +286,7 @@ for parameter in parameters:
             # Fill confusion matrix for high threshold analysis
             confusion_matrix_chunks = confusion_matrix_chunks.append({
                 'CHUNK_ID': chunk_id,
-                'SCALED': True,
+                'SCALING': 'Min-Max',
                 'PARAMETER': parameter.upper(),
                 'MODEL': 'TCN',
                 'ENDOGENOUS': endogenous_input,
@@ -306,7 +306,7 @@ for parameter in parameters:
             # Fill confusion matrix for low threshold analysis
             confusion_matrix_chunks = confusion_matrix_chunks.append({
                 'CHUNK_ID': chunk_id,
-                'SCALED': True,
+                'SCALING': 'Min-Max',
                 'PARAMETER': parameter.upper(),
                 'MODEL': 'TCN',
                 'ENDOGENOUS': endogenous_input,
@@ -362,7 +362,7 @@ for parameter in parameters:
         'PARAMETER': parameter.upper(),
         'RUNTIME': runtime,
         'MODEL': 'TCN',
-        'SCALED': True,
+        'SCALING': 'Min-Max',
         'LIBRARY': 'darts',
         'ENDOGENOUS': endogenous_input,
         'EXOGENOUS': exogenous_input,
@@ -388,7 +388,7 @@ for parameter in parameters:
         'PARAMETER': parameter.upper(),
         'RUNTIME': runtime,
         'MODEL': 'TCN',
-        'SCALED': True,
+        'SCALING': 'Min-Max',
         'LIBRARY': 'darts',
         'ENDOGENOUS': endogenous_input,
         'EXOGENOUS': exogenous_input,
@@ -407,7 +407,7 @@ for parameter in parameters:
 # Save model-level confusion matrix after all model types and parameters are processed
 # Note: adjust path name if you want to execute this script in parallel with different parameters/ model types
 confusion_matrix_models_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/confusion_matrix_models_scaled_'
-                                 f'{endogenous_input}.pickle', 'wb')
+                                 f'{endogenous_input}_s2.pickle', 'wb')
 pickle.dump(confusion_matrix_models, confusion_matrix_models_f, protocol=pickle.HIGHEST_PROTOCOL)
 confusion_matrix_models_f.close()
 

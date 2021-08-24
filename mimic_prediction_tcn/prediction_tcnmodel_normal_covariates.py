@@ -15,6 +15,7 @@ from darts import TimeSeries
 from darts.dataprocessing.transformers import MissingValuesFiller
 from darts.models import TCNModel
 
+import numpy as np
 import os
 import pandas as pd
 import pickle
@@ -236,7 +237,7 @@ for parameter in parameters:
         param_model_low_f.close()
 
         confusion_matrix_chunks = pd.DataFrame(
-            columns=['CHUNK_ID', 'SCALED', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST',
+            columns=['CHUNK_ID', 'SCALING', 'PARAMETER', 'MODEL', 'ENDOGENOUS', 'EXOGENOUS', 'FIRST_FORECAST',
                      'ALARM_TYPE', 'FP', 'TP', 'FN', 'TN', 'N_HIGH_ALARMS', 'N_LOW_ALARMS', 'N_ITERATIONS'])
 
         # Iterate chunk IDs we want to predict
@@ -372,7 +373,7 @@ for parameter in parameters:
             # Fill confusion matrix for high threshold analysis
             confusion_matrix_chunks = confusion_matrix_chunks.append({
                 'CHUNK_ID': chunk_id,
-                'SCALED': False,
+                'SCALING': np.nan,
                 'PARAMETER': parameter.upper(),
                 'MODEL': 'TCN',
                 'ENDOGENOUS': endogenous_input_high,
@@ -392,7 +393,7 @@ for parameter in parameters:
             # Fill confusion matrix for low threshold analysis
             confusion_matrix_chunks = confusion_matrix_chunks.append({
                 'CHUNK_ID': chunk_id,
-                'SCALED': False,
+                'SCALING': np.nan,
                 'PARAMETER': parameter.upper(),
                 'MODEL': 'TCN',
                 'ENDOGENOUS': endogenous_input_low,
@@ -448,7 +449,7 @@ for parameter in parameters:
         'PARAMETER': parameter.upper(),
         'RUNTIME': runtime,
         'MODEL': 'TCN',
-        'SCALED': False,
+        'SCALING': np.nan,
         'LIBRARY': 'darts',
         'ENDOGENOUS': endogenous_input_high,
         'EXOGENOUS': exogenous_input,
@@ -474,7 +475,7 @@ for parameter in parameters:
         'PARAMETER': parameter.upper(),
         'RUNTIME': runtime,
         'MODEL': 'TCN',
-        'SCALED': False,
+        'SCALING': np.nan,
         'LIBRARY': 'darts',
         'ENDOGENOUS': endogenous_input_low,
         'EXOGENOUS': exogenous_input,
@@ -493,7 +494,7 @@ for parameter in parameters:
 # Save model-level confusion matrix after all model types and parameter are processed
 # Note: adjust path name if you want to execute this script in parallel with different parameters/ model types
 confusion_matrix_models_f = open(f'./data/{approach}/{n_chunks}_chunks/{style}/confusion_matrix_models_normal_'
-                                 f'{endogenous_input}.pickle', 'wb')
+                                 f'{endogenous_input}_n.pickle', 'wb')
 pickle.dump(confusion_matrix_models, confusion_matrix_models_f, protocol=pickle.HIGHEST_PROTOCOL)
 confusion_matrix_models_f.close()
 
