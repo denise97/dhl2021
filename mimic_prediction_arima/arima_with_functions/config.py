@@ -1,0 +1,9 @@
+glob_arima_library = ''    
+glob_arima_mode = ''
+glob_train_size = 0
+glob_test_size = 0
+glob_train_size_modus = 0
+glob_parameter = ''
+glob_chunk_amount = ''
+glob_resampling_methods_endog = []
+glob_resampling_methods_exog = []
