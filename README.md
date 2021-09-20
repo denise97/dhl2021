@@ -49,4 +49,4 @@ The folder structure is as follows:
 - **Medication** refers to medical treatments recorded in `PRESCRIPTIONS.csv` and `INPUTEVENTS_MV.csv`. After the investigation of these tables, we added a flag to each alarm indicating whether a medication was given within a certain period of time around the alarm (1h before to 1h after the alarm,  see [03_integrate_med_flag.ipynb](./mimic_medication_analysis/03_integrate_med_flag.ipynb)). This flag is solely based on `inputevents_based_medications.parquet`.
 - **Sampling Rate** describes the average of vital parameter measurements obtained in one hour for a specific vital parameter of an ICU Stay or a Chunk.
 - **Timedelta to Previous Measurement**  forms the basis for deriving possible chunking rules. The timedelta always refers to the timestamp of the same ICU stay and the same vital parameter. The elapsed time between one measurement and the previous measurement is given in minutes.
--  ... *list to be extended*
+
