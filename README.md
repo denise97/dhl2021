@@ -1,41 +1,41 @@
 # Master Project: Predictive Maintenance for Patients 
 
-For more information, see [project description](https://hpi.de/arnrich/projects/preventive-maintenance-for-patients.html) and links in Wiki entry [Materials](https://github.com/denise97/dhl2021/wiki/Material). 
+This project was conducted in the summer term 2021 at the "Digital Health - Connected Healthcare" chair of the Hasso Plattner Institute for Digital Engineering, University of Potsdam, Germany. For more information, see [project description](https://hpi.de/arnrich/projects/preventive-maintenance-for-patients.html) and links in Wiki entry [Materials and Links](https://github.com/denise97/dhl2021/wiki/Materials-and-Links). 
 
 ## Folder Structure in Git Repository
 
-In general, this Git repository contains only scripts (usually Jupyter notebooks or Python scripts), not data sets. Data sets are located on the Delab server in the `MPSS2021BA1` folder (usually CSV or Parquet files) and documented in Wiki entry [File Overview](https://github.com/denise97/dhl2021/wiki/File-Overview).
+In general, this repository contains only scripts (usually Jupyter notebooks or Python scripts), not datasets. Datasets are located on the Delab server in the `MPSS2021BA1` folder (usually CSV, Pickle or Parquet files) and are mostly documented in the Wiki entry [Excerpt of Produced Datasets](https://github.com/denise97/dhl2021/wiki/Excerpt-of-Produced-Datasets).
 
 **A tabular overview of all individual scripts is provided in the [Script Register](./Script_Register.csv)**, including the script name and location as well as the respective input and output file(s).
 
 The folder structure is as follows:
 
 - [**`archive`**](./archive/)
-  - Obsolete scripts that are currently no longer used in this form.
+  - Obsolete scripts that are currently no longer used in this form
 - [**`mimic_alarm_data_generation`** ](./mimic_alarm_data_generation)
-  - Scripts for generating alarm data based on chartevents data. Necessary because alarm data are not part of the MIMIC-III data sets. Note that alarm data generation takes place after data pre-processing (e.g. threshold cleaning impacts where alarms are identified).
+  - Scripts for generating alarm data based on cleaned chartevents data 
+  - Necessary because alarm data are not part of the MIMIC-III data sets; later we decided that forecasting scripts perform alarm data generation by their own 
+  - Note that alarm data generation takes place after data pre-processing (e.g. threshold cleaning impacts where alarms are identified)
 - [**`mimic_alarm_violations_analysis`**](./mimic_alarm_violations_analysis)
-  - Scripts used to analyze the `alarm_violations.csv` data set by Jonas.
-  - Created to gain initial data insights in Week02 of the project, see presentation slides `Weekly_02.pptx` from 2021-04-20 on [shared OneDrive cloud folder](https://onedrive.live.com/?id=EA16765E72B7F0C0%21441510&cid=EA16765E72B7F0C0)).
-  - Created before starting work on data pre-processing.
+  - Scripts used to analyze the `alarm_violations.csv` data set by Jonas Chromik
+  - Created to gain initial data insights and before starting work on data preprocessing
 - [**`mimic_chartevents_analysis`**](./mimic_alarm_violations_analysis)
-  - Scripts for analyzing MIMIC-III chartevent datasets in all variants, i.e. of cleaned chartevents, of chunked chartevents, of resampled chartevents, etc.
-  - This folder may be further structured by subfolders. For example, a dedicated subfolder for sample rate analysis may be created if there are too many individual scripts for sampling rate analysis of ICU stays, of chunks, etc.
+  - Scripts for analyzing MIMIC-III CHARTEVENTS table in all variants, e.g. cleaned, chunked or resampled
 - [**`mimic_medication_analysis`**](./mimic_medication_analysis)
-  - Scripts for analyzing MIMIC-III medication datasets.
+  - Scripts for analyzing MIMIC-III medication datasets
 - [**`mimic_data_preprocessing`**](./mimic_data_preprocessing)
-  - Scripts for preparing MIMIC-III data for analysis and prediction, e.g. cleaning, chunking and resampling CHARTEVENT data.
-  - Once the order of pre-processing steps is established (e.g., Cleaning → Chunking → Resampling), we may add prefixes to the file names to reflect the order (e.g., `01_cleaning_...`, `02_chunking_...`, `03_resampling_...`). Currently only a proposal, not yet implemented.
+  - Scripts for preparing MIMIC-III data for analysis and prediction, i.e. cleaning, chunking and resampling CHARTEVENTS data
 - [**`mimic_prediction_arima`**](./mimic_prediction_arima)
-  - Scripts for time series forecasting with *Autoregressive Integrated Moving Average models* (ARIMA) in all variants, i.e. also ARIMAX, for instance.
+  - Scripts for time series forecasting with *Autoregressive Integrated Moving Average* (ARIMA) models in all variants, i.e. also ARIMAX
 - [**`mimic_prediction_rnn`**](./mimic_prediction_rnn)
-  - Scripts for time series forecasting with [*RNNModel* by Darts](https://unit8co.github.io/darts/generated_api/darts.models.rnn_model.html). Series are non-scaled, min-max-scaled or scaled with standard score, and used with appropriate covariates in respective scripts. All predictions are made with Vanilla RNNs, LSTMs and GRUs.
+  - Scripts for time series forecasting with [*RNNModel* by Darts](https://unit8co.github.io/darts/generated_api/darts.models.rnn_model.html), i.e. with Vanilla RNNs, LSTMs and GRUs
+  - Models are tested with non-scaled, min-max-scaled and standard score-scaled time series
 - [**`mimic_prediction_tcn`**](./mimic_prediction_tcn)
-  - Scripts for time series forecasting with [*TCNModel* by Darts](https://unit8co.github.io/darts/generated_api/darts.models.tcn_model.html).
+  - Scripts for time series forecasting with [*TCNModel* by Darts](https://unit8co.github.io/darts/generated_api/darts.models.tcn_model.html)
 - [**`paper_visualizations`**](./paper_visualizations)
-  - Scripts for the creation of various plots for Jonas' paper.
+  - Scripts for the creation of various plots for paper
 - [**`templates_for_plots`**](./templates_for_plots)
-  - General templates for creating charts such as box plots, histograms and time series plots.
+  - General templates for creating charts such as box plots, histograms and time series plots
 
 ## Glossary of Terms
 
