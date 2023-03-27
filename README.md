@@ -1,6 +1,6 @@
 # Master Project: Predictive Maintenance for Patients 
 
-This project was conducted in the summer term 2021 at the "Digital Health - Connected Healthcare" chair of the Hasso Plattner Institute for Digital Engineering, University of Potsdam, Germany. For more information, see [project description](https://hpi.de/arnrich/projects/preventive-maintenance-for-patients.html) and links in Wiki entry [Materials and Links](https://github.com/denise97/dhl2021/wiki/Materials-and-Links). 
+This project was conducted in the summer term 2021 at the "Digital Health - Connected Healthcare" chair of the Hasso Plattner Institute for Digital Engineering, University of Potsdam, Germany. For more information, see [project description](https://hpi.de/arnrich/teaching/master-projects/forecasting-alarms-in-intensive-care-units.html) and links in Wiki entry [Materials and Links](https://github.com/denise97/dhl2021/wiki/Materials-and-Links). 
 
 ## Folder Structure in Git Repository
 
